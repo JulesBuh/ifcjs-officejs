@@ -25,7 +25,7 @@ FILE_SCHEMA(('IFC2X3'));
 ENDSEC;
 
 DATA;
-#1= IFCORGANIZATION($,'Autodesk Revit 2021 (ESP)',$,$,$);
+#1= IFCORGANIZATION($,'Autodesk Revit 2021 (ESP)',$,IFCACTORROLE($,$,$),IFCADDRESS($,$,$));
 #2= IFCDOCUMENTINFORMATION('PRJ-ORG-XX-ZZ-A-M3-00000-S0','Name','Desc','Loc','Purp','Use','Scope','Rev','Own','Editors','CreationTime','LastRev','docx','validfrom','validuntil','conf','status');
 #5= IFCAPPLICATION(#1,'2021','Autodesk Revit 2021 (ESP)','Revit');
 #6= IFCCARTESIANPOINT((0.,0.,0.));
