@@ -58,7 +58,7 @@ function RemoveBrackets(guid) {
  * @returns 32 character hex guid.á
  * @volatile
  */
-function IfcToGuid(ifcGUID): string {
+function IfcToGuid(ifcGUID) {
   var str = ifcGUID;
   var ifcGuidPatt = new RegExp("^[0-3][a-zA-Z0-9_$]{21}$", "gi"); //Checked this regex exhaustively in Excel by applying the formula to different permutations of characters and lengths. Valid ifcguids must begin with 0,1,2 or 3.
   var res = str.match(ifcGuidPatt);
@@ -195,7 +195,7 @@ function IfcToGuid(ifcGUID): string {
  * @returns 22 character 64base guid.
  * @volatile
  */
-function GuidToIfc(hexGUID): string {
+function GuidToIfc(hexGUID) {
   var str = hexGUID;
   var ifcGuidPatt = new RegExp("^[a-fA-F0-9]{32}$|^[a-fA-F0-9-]{36}$|^{[a-fA-F0-9-]{36}}$", "gi");
   //Checked this regex exhaustively in Excel by applying the formula to different permutations of characters and lengths
