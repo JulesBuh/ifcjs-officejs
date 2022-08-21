@@ -1,4 +1,4 @@
-const ifcpath = "https://julesbuh.github.io/ifcjs-officejs/01.ifc";
+
 
 /**
  * @license
@@ -83383,7 +83383,7 @@ ifcLoader.ifcManager.setWasmPath("https://julesbuh.github.io/ifcjs-officejs/");
 			ifcModels.push(ifcModel);
 			scene.add(ifcModel);
 		});
-		fetch(ifcpath, [mode = "cors"])
+		fetch(ifcURL, [mode = "cors"])
 		  .then(response => response.text())
 		  .then(data => {
 			LoadFileData(data);
@@ -83558,8 +83558,8 @@ window.onkeydown = function( event ) {
  */
 const table = document.createElement("table");
 
-const ifcapi = new IfcAPI2();
-ifcapi.SetWasmPath("https://julesbuh.github.io/ifcjs-officejs/");
+//const ifcapi = new IfcAPI2();
+//ifcapi.SetWasmPath("https://julesbuh.github.io/ifcjs-officejs/");
 
 const leftContainer = document.getElementById("left-container");
 
@@ -83583,13 +83583,13 @@ async function LoadFileData(ifcAsText) {
 }
 
 async function OpenIfc(ifcAsText) {
-  await ifcapi.Init();
-  return ifcapi.OpenModel(ifcAsText);
+  await ifc.state.api.Init();
+  return ifc.state.api.OpenModel(ifcAsText);
 }
 
 function GetAllItems(modelID, excludeGeometry = false) {
   const allItems = {};
-  const lines = ifcapi.GetAllLines(modelID);
+  const lines = ifc.state.api.GetAllLines(modelID);
   getAllItemsFromLines(modelID, lines, allItems, excludeGeometry);
   return allItems;
 }
@@ -83607,7 +83607,7 @@ function getAllItemsFromLines(modelID, lines, allItems, excludeGeometry) {
 
 function saveProperties(modelID, lines, allItems, excludeGeometry, index) {
   const itemID = lines.get(index);
-  const props = ifcapi.GetLine(modelID, itemID);
+  const props = ifc.state.api.GetLine(modelID, itemID);
   props.type = props.__proto__.constructor.name;
   if (!excludeGeometry || !geometryTypes.has(props.type)) {
     allItems[itemID] = props;
@@ -83629,7 +83629,7 @@ function getPropertyWithExpressId(modelID = 0) {
 
 
   // If third parameter is added as true, we get a flatten result
-  const element = ifcapi.GetLine(modelID, elementID);
+  const element = ifc.state.api.GetLine(modelID, elementID);
   const exists = elementID == element.expressID;
   //console.log(element, elementID == element.expressID);
 
@@ -83654,7 +83654,7 @@ function getPropertyWithExpressId(modelID = 0) {
 
 
     // grab all propertyset lines in the file
-    let lines = ifcapi.GetLineIDsWithType(modelID, IFCRELDEFINESBYPROPERTIES);
+    let lines = ifc.state.api.GetLineIDsWithType(modelID, IFCRELDEFINESBYPROPERTIES);
 
     // In the below array we will store the IDs of the Property Sets found
     let propSetIds = [];
@@ -83663,7 +83663,7 @@ function getPropertyWithExpressId(modelID = 0) {
       let relatedID = lines.get(i);
 
       // Getting Element Data using the relatedID
-      let relDefProps = ifcapi.GetLine(modelID, relatedID);
+      let relDefProps = ifc.state.api.GetLine(modelID, relatedID);
 
       // Boolean for Getting the IDs if relevant IDs are present
       let foundElement = false;
@@ -83693,7 +83693,7 @@ function getPropertyWithExpressId(modelID = 0) {
 
 
     // Getting the Property Sets from their IDs
-    let propsets = propSetIds.map(id => ifcapi.GetLine(modelID, id, true));
+    let propsets = propSetIds.map(id => ifc.state.api.GetLine(modelID, id, true));
 
     propsets.forEach((set) => {
       // There can multiple Property Sets
@@ -83722,7 +83722,7 @@ function getPropertyWithExpressId(modelID = 0) {
     });
 
     // grab all relateddocuments lines in the file
-    let doclines = ifcapi.GetLineIDsWithType(modelID, IFCRELASSOCIATESDOCUMENT);
+    let doclines = ifc.state.api.GetLineIDsWithType(modelID, IFCRELASSOCIATESDOCUMENT);
 
     let docIds = [];
     createHeaderInTable("Linked Documents", "Document Name");
@@ -83730,7 +83730,7 @@ function getPropertyWithExpressId(modelID = 0) {
       // Getting the ElementID from Lines
       let relatedID = doclines.get(i);
       // Getting Element Data using the relatedID
-      let relDefDocs = ifcapi.GetLine(modelID, relatedID);
+      let relDefDocs = ifc.state.api.GetLine(modelID, relatedID);
       // Boolean for Getting the IDs if relevant IDs are present
       let foundElement = false;
       // RelatedObjects is a property that is an Array of Objects. 
@@ -83756,7 +83756,7 @@ function getPropertyWithExpressId(modelID = 0) {
           // Storing and pushing the IDs found in propSetIds Array
           docIds.push(handle.value);
 
-          doc = ifcapi.GetLine(modelID, handle.value, true);
+          doc = ifc.state.api.GetLine(modelID, handle.value, true);
           //console.log(doc);
 
           createRowInTable(doc.Identification.value, doc.Name.value)
@@ -83842,8 +83842,8 @@ function addNewObject(modelID = 0, object = document.getElementById("expressIDLa
     { type: 1, value: 'BIM developer' },
     { type: 1, value: 'julesbuh@mybusiness.microsoft.com' }
   );
-
-  ifcapi.WriteLine(modelID = 0, org);
+;
+  ifc.state.api.WriteLine(modelID = 0, org);
 
   // Build Application Details
   let Application = new IfcApplication(nextexpressId + 1, IFCAPPLICATION,
@@ -83853,7 +83853,7 @@ function addNewObject(modelID = 0, object = document.getElementById("expressIDLa
     { type: 1, value: AddDashes(md5('BIMDoc' + '0.0'), 3) }
   );
 
-  ifcapi.WriteLine(modelID = 0, Application);
+  ifc.state.api.WriteLine(modelID = 0, Application);
 
   //Build and person organisation
   let PersonOrg = new IfcPersonAndOrganization(nextexpressId + 2, IFCPERSONANDORGANIZATION,
@@ -83862,7 +83862,7 @@ function addNewObject(modelID = 0, object = document.getElementById("expressIDLa
     { type: 1, value: "The End User's Role" }
   );
 
-  ifcapi.WriteLine(modelID = 0, PersonOrg);
+  ifc.state.api.WriteLine(modelID = 0, PersonOrg);
 
   //Build an owner 
   let Owner = new IfcOwnerHistory(nextexpressId + 3, IFCOWNERHISTORY,
@@ -83876,7 +83876,7 @@ function addNewObject(modelID = 0, object = document.getElementById("expressIDLa
     { type: 1, value: '' + currentDate.toISOString() }
   );
 
-  ifcapi.WriteLine(modelID = 0, Owner);
+  ifc.state.api.WriteLine(modelID = 0, Owner);
 
 
   // Builds the document
@@ -83901,7 +83901,7 @@ function addNewObject(modelID = 0, object = document.getElementById("expressIDLa
   );
   //console.log(Doc);
 
-  ifcapi.WriteLine(modelID = 0, Doc);
+  ifc.state.api.WriteLine(modelID = 0, Doc);
 
   // Builds the relationship to the object
   var ObjRelDoc = new IfcRelAssociatesDocument(nextexpressId + 5, IFCRELASSOCIATESDOCUMENT,
@@ -83912,7 +83912,7 @@ function addNewObject(modelID = 0, object = document.getElementById("expressIDLa
     [{ type: 5, value: Number(object) }],
     Doc)
 
-  ifcapi.WriteLine(modelID = 0, ObjRelDoc);
+  ifc.state.api.WriteLine(modelID = 0, ObjRelDoc);
   //reload properties panel
   getPropertyWithExpressId(modelID, Doc.expressID);
   //set the selector to new object's id
