@@ -1,0 +1,498 @@
+		:root{
+			--gl-excel:#217346;
+			--gl-word:#2b579a;
+			--gl-powerpoint:#b7472a;
+			--gl-onenote :#7719aa;
+			--gl-pdf :#aa1e19;
+			--gl-goldlink :#ffd700;
+			--gl-applicationcontext:#ffd700;/*this default color is overidden by js*/
+			--gl-applicationcontext-transp:#ffd70050;/*this default color is overidden by js*/
+		}
+		
+		body{
+			overflow-x: hidden;
+				}
+
+	/*navigation toolbars*/ 
+		.navbar-inverse .navbar-brand{
+			color: gold;
+		}
+		.navbar-inverse  .navbar-nav>li>a:hover {
+		  color: gold;
+			width: auto;
+			overflow:hidden;
+			overflow-x:hidden;
+			white-space: nowrap;
+		}
+		.panel {
+			height:34vh;
+			overflow-y: auto;
+			border: #222222;
+			border-style: solid;
+			border-width: thick;
+			border-radius: 10px;
+		}
+		#prop.panel {
+			width:70vw;
+		}
+		.navbar:after, .navbar:before, .containera-fluid:before{
+			display:table-row !important;
+			content:" ";
+			clear: both;
+		}
+		/*.navbar-collapse:after, .navbar-collapse:before{
+			display:table-row !important;
+			content:" ";
+			clear: both;
+		}*/
+		.containera-fluid:after{
+			display:table-row !important;
+			content:" ";
+			clear: both;
+		}
+		.nav {
+			/*width: 80vw;*/
+			overflow:hidden;
+		}
+		nav {
+			z-index:100;
+		}
+		.navbar-footer {
+		 position:absolute;
+		 width:100vw;
+		bottom:25px;
+		left:0px;
+		}
+		.instructor-footer {
+		 position:absolute;
+		 width:100vw;
+		 height:10px;
+		 z-index:-1;
+		bottom:5px;
+		left:0px;
+		padding:15px 0 15px 0;;
+		background-color:#000000ff;
+		color:lightgrey;
+		}
+		@media only screen and (max-width: 768px) {
+			.panel {
+			height:20vh;
+			width:100vw;
+			overflow-y: auto;
+			}
+			#prop.panel {
+						width:100vw;
+					}
+		}
+		@media only screen and (min-width: 768px) {
+			
+			.navbar-collapse.collapse {
+			display: hidden;}
+		}
+	/* Remove the navbar's default margin-bottom and rounded borders */ 
+		.navbar {
+		  margin-bottom: 0px;
+		  border-radius: 10px;
+		}
+		::-webkit-scrollbar {
+		  width: 10px;
+		  background: gold;
+		}
+
+	/* Scrollbar Track */
+		::-webkit-scrollbar-track {
+			  background: grey; 
+		  box-shadow: inset 0 0 10px gold; 
+
+		  border-radius: 10px;
+		}
+		 
+	/* Scrollbar Handle */
+		::-webkit-scrollbar-thumb {
+			background: gold; 
+			  box-shadow: inset 0 0 5px brown; 
+
+		  border-radius: 1px;
+		}
+
+	/* Scrollbar Handle on hover */
+		::-webkit-scrollbar-thumb:hover {
+		  background: yellow; 
+		   box-shadow: inset 0 0 15px brown; 
+		}
+	.navbar-toggle-footer {
+		position: relative;
+		float: right;
+		padding: 9px 10px;
+		margin-right: 15px;
+		margin-top: 8px;
+		margin-bottom: 8px;
+		background-color: transparent;
+		background-image: none;
+		border: 1px solid transparent;
+		border-radius: 4px;
+	}
+	.navbar-toggle-footer .icon-bar {
+		display: block;
+		width: 22px;
+		height: 2px;
+		border-radius: 1px;
+	}
+	.navbar-inverse .navbar-toggle-footer .icon-bar {
+    background-color: #fff;
+	}
+	.navbar-inverse .navbar-toggle-footer:focus, .navbar-inverse .navbar-toggle-footer:hover {
+    background-color: #333;
+	}
+
+	/* attach button */
+	.btn:focus, .btn.active:focus, .btn.active, .btn:active:focus, .btn.active.focus {  outline: 0px auto -webkit-focus-ring-color;
+  outline-offset: 0px;}
+
+
+		 #addDocument {
+			display: inline-block;
+			background-color: #7b38d815;
+			border-radius: 50px;
+			/*border: 4px double #cccccc15;*/
+			/*color: #eeeeeeff;*/
+			position: fixed;
+			left: 0px;
+			text-align: center;
+			font-size: 18px;
+			padding: 10px;
+			width: 100px;
+			height: 100px;
+			box-shadow: 1px 2px 12px 0px rgba(19,07,07,0.25);
+			-webkit-transition: all 0.5s;
+			-moz-transition: all 0.5s;
+			-o-transition: all 0.5s;
+			transition: all 0.5s;
+			cursor: pointer;
+			margin: 12px;
+		  }
+		  #add:hover {
+		  box-shadow: 1px 2px 22px 0px gold;
+		  }
+			#filter {
+			display: inline-block;
+			background-color: #7b38d815;
+			border-radius: 50px;
+			/*border: 4px double #cccccc15;*/
+			/*color: #eeeeeeff;*/
+			position: fixed;
+			right: 0px;
+			text-align: center;
+			font-size: 18px;
+			padding: 10px;
+			width: 100px;
+			height: 100px;
+			box-shadow: 1px 2px 12px 0px rgba(19,07,07,0.25);
+			-webkit-transition: all 0.5s;
+			-moz-transition: all 0.5s;
+			-o-transition: all 0.5s;
+			transition: all 0.5s;
+			cursor: pointer;
+			margin: 12px;
+		  }
+		  #add:hover {
+		  box-shadow: 1px 2px 22px 0px gold;
+		  }
+			.IfcObjective {
+			display: inline-block;
+			background-color: #7b38d815;
+			border-radius: 25px;
+			position: relative;
+			left: 0px;
+			top: 130px;
+			text-align: center;
+			font-size: 18px;
+			padding: 10px;
+			width: 50px;
+			height: 50px;
+			box-shadow: 1px 2px 12px 0px rgba(19,07,07,0.25);
+			-webkit-transition: all 0.5s;
+			-moz-transition: all 0.5s;
+			-o-transition: all 0.5s;
+			transition: all 0.5s;
+			cursor: pointer;
+			margin: 12px;
+		  }
+		  #add:hover {
+		  box-shadow: 1px 2px 22px 0px gold;
+		  }
+			.SubObjective {
+				display:none;
+			}
+			.collapse.in.SubObjective.L0 {
+				display:block;
+			}
+			.collapse.in.SubObjective.L1 {
+				display:block;
+			}
+			.collapse.in.SubObjective.L2 {
+				display:inline-block;
+			}
+	.tab-focus() {
+  // WebKit-specific. Other browsers will keep their default outline style.
+  // (Initially tried to also force default via `outline: initial`,
+  // but that seems to erroneously remove the outline in Firefox altogether.)
+
+}
+/*viewport*/
+	#three-canvas{
+		position: fixed;
+		top: 0px;
+		left: 0;
+		outline: none;
+		z-index: -99;
+		width: 100vw;
+		height: calc(100vh - 40px);
+		background: #666666;
+		background: linear-gradient(0deg,#dddbdb 5%, #666666ff 10%, #9a752b99 35%, var(--gl-applicationcontext-transp) 90%,#1b1b1b 95%);
+	}
+	/* tooltip styles*/
+		.tooltip {
+		  position: absolute;
+			width: 200px;
+		  /*display: inline-block;*/
+		}
+
+		.tooltip .tooltiptext {
+		  visibility: hidden;
+		  width: 120px;
+		  background-color: #00000050;
+		  color: #fff;
+		  text-align: center;
+		  border-radius: 12px;
+		  /*padding: 5px 0;*/
+			/* Position the tooltip */
+		  position: absolute;
+		  z-index: 1;
+			
+    }
+         
+			@-webkit-keyframes fadeOut {
+				0% {opacity: 1;}
+				100% {opacity: 0;}
+			}
+			
+			@keyframes fadeOut {
+				0% {opacity: 1;}
+				100% {opacity: 0;}
+			}
+			
+			.fadeOut {
+				-webkit-animation-name: fadeOut;
+				animation-name: fadeOut;
+			}
+
+		.tooltip:hover .tooltiptext {
+		  visibility: visible;
+		}
+		.tooltip:not(:active) {
+			-webkit-animation-duration: 6s;animation-duration: 6s;
+      -webkit-animation-fill-mode: both;animation-fill-mode: both;
+		}
+		.fade.in:hover {
+	  opacity: 50%;
+	  transition: opacity 6s;
+	}
+
+	/*icons*/
+	.glyphicon {color:gold;
+	z-index: 1;}
+	.fa {color:gold;
+	z-index: 2;}
+	.fa-file-word {color:var(--gl-word);z-index:1;}
+	.fa-file-excel {color:var(--gl-excel);z-index:1;}
+	.fa-file-powerpoint {color:var(--gl-powerpoint);z-index:1;}
+	.fa-file-pdf {color:var(--gl-pdf);z-index:1;}
+	.fa-file {color:var(--gl-applicationcontext);z-index:1;}
+	.fa-file-text {color:var(--gl-applicationcontext);z-index:1;}
+	.fa-plus, fa-link {color:#fff;z-index:2;}
+	.IfcObjective>.fa {color:var(--gl-applicationcontext);z-index:1;}
+
+
+section.samples {
+    margin-top: 20px;
+}
+
+section.samples .ms-Button, section.setup .ms-Button {
+    display: block;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    min-width: 80px;
+    z-index: 99;
+}
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow: hidden;
+}
+
+#three-canvas{
+    position: fixed;
+    top: 20;
+    left: 0;
+    outline: none;
+     z-index: -99;
+}
+
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow: hidden;
+    /*background-color: #FCFEFE;*/
+}
+.sidepanel{
+	position: absolute;
+    width: 50vh;
+    right: -0vw;
+}
+
+.property-container {background: #00000000;}
+
+
+
+.file-opener {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    top: 3rem;
+    right: 4rem;
+}
+
+.basic-button {
+    background-color: #F3F4F6;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: none;
+    transition: all 0.1s ease-in-out;
+    box-shadow: 0 0 0 0 #e6e6e6;
+    margin: 1rem;
+}
+
+.basic-button:hover {
+    background-color: white;
+    box-shadow: 0 10px 20px 8px #e6e6e6;
+}
+
+.basic-button:active {
+    background-color: #F3F4F6;
+}
+
+.invisible {
+    visibility: collapse;
+	display: none;
+}
+
+
+
+.ifc-container{
+    height: 30%;
+    border-bottom: 5px solid #F3F4F6;
+    overflow: auto;
+	display: none;
+}
+.search-container{
+    overflow: auto;
+    height: 15%;
+}
+.property-container{
+    overflow-y: auto;
+	overflow-x: hidden;
+    height: 85%;
+}
+#properties{
+    overflow-y: auto;
+	overflow-x: hidden;
+    height: 85%;
+}
+.input-container{
+    padding: 20px;
+   /* border-bottom: 5px solid #F3F4F6;*/
+}
+#properties{
+    padding: 8px;
+}
+#expressIDLabel {
+    font-size: 14px;
+    padding: 4px;
+    width: 60%;
+    border-radius: 8px;
+	position: absolute;
+    right: 30px;
+}
+
+#file-input {
+	margin-left: 20px;
+    font-size: 14px;
+    padding: 8px 12px;
+    background-color: #e6e6e6;
+    border: unset;
+    border-radius: 8px;
+    right: 30px;
+	z-index: 1;
+    position: absolute;
+}
+.property-button{
+    margin-left: 20px;
+    font-size: 14px;
+    padding: 8px 12px;
+    background-color: #e6e6e6;
+    border: unset;
+    border-radius: 8px;
+    right: 30px;
+}
+.property-button:hover{
+    box-shadow: 0 10px 20px 8px #e6e6e6;
+    background-color: white;
+    transition: 0.2s;
+}
+.document-button{
+    margin-left: 20px;
+    font-size: 14px;
+    padding: 8px 12px;
+    background-color: #e6e6e6;
+    border: unset;
+    border-radius: 8px;
+}
+.grp-button{
+
+	position: absolute;
+    right: 30px;
+	bottom: 30px;
+}
+
+.document-button:hover{
+    box-shadow: 0 10px 20px 8px yellow;
+    background-color: white;
+    transition: 0.2s;
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+	background:#ffffffbb;
+}
+
+td{
+    border: 1px solid black;
+    padding: 8px;
+}
+
+
+
