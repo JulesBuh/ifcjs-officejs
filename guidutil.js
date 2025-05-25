@@ -1,3 +1,5 @@
+/*jsoffice script functions devised by Julian Buhagiar, incorporating RFC 4122, 9562 and ISO 9348, 16739 guid methods.*/
+
 /** Returns 32byte guid with dashes 01234567-89ab-<Method>def-a123-456789abcdef- */
 /** @CustomFunction
  * @param {string} guid - input a guid e.g 0123456789abcdef0123456789abcdef
