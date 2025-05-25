@@ -1,0 +1,165 @@
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<canvas id="three-canvas"></canvas>
+<nav class="navbar navbar-inverse">
+	<div class="containera-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>                        
+		  </button>
+			<a class="navbar-brand" href="#"><span class="glyphicon glyphicon-link"></span> GoldLink</a>
+		</div>
+		<div class="collapse navbar-collapse" id="myNavbar">
+			<ul class="nav navbar-nav">
+				<li><a href="#" data-bs-toggle="tooltip" data-placement="right"
+						data-original-title="Load an IFC model into the viewer"
+						onclick="document.getElementById('file-input').click();">Load IFC
+						<span class="glyphicon glyphicon-folder-open"></span></a>
+					<input type="file" id="file-input" style="display:none;" accept=".ifc, .ifcXML, .ifcZIP">
+							</li>
+				<li><a href="#" data-bs-toggle="tooltip" data-placement="right"
+						data-original-title="Saves an IFC model with the new attached doclink info"
+						onclick="save()">Save IFC
+						<span class="glyphicon glyphicon-floppy-disk"></span> </a></li>
+				<li class="invisible"><a href="#" data-bs-toggle="tooltip" data-placement="right"
+						data-original-title="Close the loaded IFC model">Close IFC
+						<span class="glyphicon glyphicon-remove"></span> </a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<button id="addDocument" type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#Objective"  data-bs-toggle="tooltip" data-placement="right" data-original-title="Link Selected Text to Selected Object" >	<span class="fa-stack fa-lg"><i class="appcontext fa fa-stack-1x fa-3x" style="z-index:-1;"></i><i class="fa fa-link fa-stack-sm" style=""> <i class="fa fa-plus fa-sm" style=""></i></i></span> </button>
+<button id="filter" type="button" class="btn btn-secondary"  data-bs-toggle="tooltip" data-placement="left" data-original-title="Only show objects for linked to the open document" >	<span class="fa-stack fa-lg"><i class="appcontext fa fa-stack-1x fa-3x" style="z-index:-1;"></i><i class="fa fa-eye fa-2x" style=""></i></i></span> </button>
+<div id="Objective" class="SubObjective  L0">
+	<button id="NOTDEFINED" data-toggle="collapse" data-target="#SubObjectives" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="right" data-original-title="Goal/Objective" >	<i class="fa fa-bullseye fa-lg"></i> </button>
+	<div id="SubObjectives" class="SubObjective  L1">
+		<div>
+			<button id="REQUIREMENT" type="button" data-toggle="collapse" data-target="#SubObjectivesREQUIREMENT" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="right" data-original-title="Project Requirement objective" >	<i class="fa fa-building fa-lg"></i> </button>
+			<div id="SubObjectivesREQUIREMENT" class="SubObjective  L2">
+				<button id="DESIGNINTENT" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Design Intent objective" >	<i class="fa fa-pencil-ruler fa-lg"></i></button>
+				<button id="WORKMANSHIP" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Workmanship objective" >	<i class="fa fa-hammer fa-lg"></i></button>
+				<button id="LOGISTIC" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Logistic transportation objective" >	<i class="fa fa-truck fa-lg"></i> </button>
+				<button id="TIME" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Time objective" >	<i class="fa fa-clock fa-lg"></i> </button>
+				<button id="SPATIAL" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Spatial objective" >	<i class="fa fa-ruler-combined fa-lg"></i> </button>
+				<button id="FINANCIALCAPEX" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Financial CapEx objective" >	<i class="fa fa-coins fa-lg"></i></button>
+				<button id="RISK" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Risk reduction objective" >	<i class="fa fa-exclamation-triangle fa-lg"></i></button>
+			</div>
+		</div>
+		<div>
+			<button id="CODECOMPLIANCE" type="button" data-toggle="collapse" data-target="#SubObjectivesCODECOMPLIANCE" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="right" data-original-title="Compliance objective" >	<i class="fa fa-check-double fa-lg"></i> </button>
+			<div id="SubObjectivesCODECOMPLIANCE" class="SubObjective  L2">
+				<button id="CODEWAIVER" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Exception objective" >	<i class="fa fa-exclamation-circle fa-lg"></i> </button>
+				<button id="PLANNINGCONDITION" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Planning Condition objective" >	<i class="fa fa-stamp fa-lg"></i> </button>
+				<button id="BUILDINGCONTROLCONDITION" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Building Control Condition objective" >	<i class="fa fa-stamp fa-lg"></i> </button>
+				<button id="HSECONDITION" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Health Regulatory Condition objective" >	<i class="fa fa-hard-hat fa-lg"></i> </button>
+				<button id="SPECIFICATION" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Specification objective" >	<i class="fa fa-pen-fancy fa-lg"></i> </button>
+				<button id="CERTIFICATION" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Certification objective" >	<i class="fa fa-award fa-lg"></i> </button>
+			</div>
+		</div>
+		<div>
+			<button id="SOCIAL" type="button" data-toggle="collapse" data-target="#SubObjectivesSOCIAL" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="right" data-original-title="Social objective" >	<i class="fa fa-users fa-lg"></i> </button>
+			<div id="SubObjectivesSOCIAL" class="SubObjective  L2">
+				<button id="HEALTHANDSAFETY" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Health and Safety objective" >	<i class="fa fa-medkit fa-lg"></i> </button>
+				<button id="WELLBEING" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Wellbeing objective" >	<i class="fa fa-smile fa-lg"></i> </button>
+				<button id="LEGAL" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Legal objective" >	<i class="fa fa-balance-scale fa-lg"></i> </button>
+				<button id="FINANCIALOPEX" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Financial OpEx objective" >	<i class="fa fa-money-bill-alt fa-lg"></i></button>
+				<button id="FIREPREVENTION" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Fire prevention objective" >	<i class="fa fa-fire fa-lg"></i></button>
+				<button id="THERMALCOMFORT" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Thermal comfort objective" >	<i class="fa fa-thermometer-half fa-lg"></i></button>
+			</div>
+		</div>
+		<div>
+			<button id="ENVIRONMENTAL" type="button" data-toggle="collapse" data-target="#SubObjectivesENVIRONENTAL" class="IfcObjective btn btn-secondary" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="right" data-original-title="Environmental objective" >	<i class="fa fa-recycle fa-lg"></i> </button>
+			<div id="SubObjectivesENVIRONENTAL" class="SubObjective L2">
+				<button id="ECOLOGICAL" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Ecological objective" >	<i class="fa fa-seedling fa-lg"></i> </button>
+				<button id="CONSERVATIONAL" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Conservational objective" >	<i class="fa fa-hand-paper fa-lg"></i> </button>
+				<button id="ENERGY" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Energy saving objective" >	<i class="fa fa-bolt fa-lg"></i> </button>
+				<button id="WATER" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Water saving objective" >	<i class="fa fa-water fa-lg"></i> </button>
+				<button id="WASTE" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Waste reducing objective" >	<i class="fa fa-dumpster fa-lg"></i> </button>
+				<button id="EMISSION" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Emission reducing objective" >	<i class="fa fa-smog fa-lg"></i></button>
+			</div>
+		</div>
+		<div>
+			<button id="INFORMATIONMANAGEMENT" type="button" data-toggle="collapse" data-target="#SubObjectivesINFORMATIONMANAGEMENT" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="right" data-original-title="Information management objective" >	<i class="fa fa-info-circle fa-lg"></i> </button>
+			<div id="SubObjectivesINFORMATIONMANAGEMENT" class="SubObjective L2">
+				<button id="PARAMETER" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="KPI objective" >	<i class="fa fa-chart-bar fa-lg"></i> </button>
+				<button id="TRIGGERCONDITION" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Limiting threshold objective that triggers if exceeded" >	<i class="fa fa-random fa-lg"></i></button>
+				<button id="EXTERNAL" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="External sync data objective" >	<i class="fa fa-file-import fa-lg"></i></button>
+				<button id="MODELVIEW" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Model View objective" >	<i class="fa fa-binoculars fa-lg"></i> </button>
+				<button id="MERGECONFLICT" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Information Coordination objective" >	<i class="fa fa-exclamation-circle fa-lg"></i></button>
+				<button id="SECURITY" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Security objective" >	<i class="fa fa-lock fa-lg"></i> </button>
+				<button id="PRIVACY" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Privacy objective" >	<i class="fa fa-user-secret fa-lg"></i></button>
+				<button id="COPYRIGHT" type="button" class="IfcObjective btn btn-secondary"  data-bs-toggle="tooltip" data-placement="top" data-original-title="Licensing rights objective" >	<i class="fa fa-copyright fa-lg"></i> </button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<nav class="navbar navbar-footer navbar-inverse">
+	<div class="containera-fluid">
+		<div class="navbar-collapse in" id="objpanels">
+			<ul class="nav navbar-nav">
+				<li>
+					<a href="#" data-toggle="collapse" data-target="#doclink" data-bs-toggle="tooltip"
+						data-original-title="Opens the list of linked document snippets associated to the selected object">
+						Document Links Panel
+						<span class="glyphicon glyphicon-file "></span>
+						<span class="glyphicon glyphicon-link "></span>
+					</a>
+					<div class="collapse panel" id="doclink">
+						<!--placeholder pane for document objects-->
+						<ul class="fa-ul">
+							<li><i class="fa fa-li  fa-file-word"></i>object1.docx#p1</li>
+							<li><i class="fa fa-li  fa-file-word"></i>2.docx#p2</li>
+							<li><i class="fa fa-li  fa-file-word"></i>3.docx#p3</li>
+							<li><i class="fa fa-li  fa-file-excel"></i>3.xlsx#Table1</li>
+							<li><i class="fa fa-li  fa-file-excel"></i>3.xlsx#Table2</li>
+							<li><i class="fa fa-li  fa-file-excel"></i>3.xlsx#Table3</li>
+							<li><i class="fa fa-li  fa-file-powerpoint"></i>3.pptx#Slide3</li>
+							<li><i class="fa fa-li  fa-file-pdf"></i>Document3.pdf#p30</li>
+						</ul>
+					</div>
+				</li>
+				<li>
+					<a href="#" data-toggle="collapse" data-target="#prop" data-bs-toggle="tooltip"
+						data-original-title="Opens the list of properties associated to the selected object">
+						Properties Panel
+						<span class="glyphicon glyphicon-tags"></span>
+					</a>
+					<div class="collapse panel" id="prop">
+						<!--placeholder pane for selected object properties-->
+						<div id="properties">
+							<ul class="fa-ul">
+								<li><i class="fa fa-li fa-tag"></i>p1</li>
+								<li><i class="fa fa-li fa-tag"></i>p2</li>
+								<li><i class="fa fa-li fa-tag"></i>p3</li>
+							</ul>
+						</div>
+				</li>
+			</ul>
+
+		</div>
+		<div class="navbar">
+			<button type="button" class="navbar-toggle-footer" data-toggle="toggle" data-target="#objpanels">
+					<span class="glyphicon glyphicon-list-alt" style=""></span>
+				  </button>
+			<a class="navbar-brand" data-toggle="toggle" data-target="#objpanels">Panels</a>
+		</div>
+	</div>
+</nav>
+<div class="instructor-footer">Status:
+	<div id="statusBar"></div>
+</div>
+
+
+
+
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.16.0/js/md5.min.js"></script>
+<script type="text/javascript" src="https://julesbuh.github.io/ifcjs-officejs/guidutil.js"></script>
+<script src="https://julesbuh.github.io/ifcjs-officejs/wdbundle.js"></script>
