@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Recursive Graph UI</title>
+  <style>
+    body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #eef;
+  overflow: hidden;
+}
+
+#ui-global {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  display: flex;              
+  flex-direction: row;
+  gap: 6px;                   
+  align-items: center;        
+}
+
+#ui-global button {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+.floating-panel {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* 🧭 Toolbar: vertical stack */
+#tool-palette {
+  top: 100px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+#tool-palette button {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+
+/* ⚙️ Properties panel: full height */
+#properties-panel {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 220px;
+  overflow-y: auto;
+}
+#properties-panel label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+
+/* 📆 Timeline: centered and wide */
+#timeline-panel {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  right: 250px; 
+  height: 100px;
+  bottom: 10px;
+  background: #ddddd00;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+#timeline-slider {
+  flex-grow: 1;
+  width: 75%;
+}
+
+#graph-canvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  background: #eef;
+}
+
+button .tool-icon {
+  width: 50%;
+  height: 50%;
+  stroke: #666;
+  fill: #666;
+  stroke-linecap:round; 
+  stroke-linejoin:round;
+  stroke-width:2;
+}
+
+  </style>
+</head>
+<body>
+  <div id="ui-global" class="floating-panel">
+    <button id="toggle-open"><svg   fill="#666" width="50%" height="50%" viewBox="0 0 512 512">
+
+<g transform="translate(42.667 42.667)">
+
+<path d="M178.0832,42.6666667 L221.594,77.0716667 L191.217,107.448667 L163.24992,85.3333333 L42.6666667,85.3333333 L42.6666667,296.106667 L82.0209067,170.666667 L341.333333,170.666667 L341.333,170.665667 L384,170.665667 L437.333333,170.666667 L372.583253,384 L-2.13162821e-14,384 L-2.13162821e-14,42.6666667 L178.0832,42.6666667 Z M379.79136,213.333333 L113.354027,213.333333 L73.1874133,341.333333 L340.95808,341.333333 L379.79136,213.333333 Z"/>
+
+<path fill-rule="nonzero" d="M384,7.10542736e-15 L384,149.333333 L341.333333,149.333333 L341.332777,72.836 L264.836777,149.332777 L204.496777,149.333333 L311.162777,42.666 L234.666667,42.6666667 L234.666667,7.10542736e-15 L384,7.10542736e-15 Z"/>
+
+</g>
+
+</svg><br>Open</button>
+	<button id="toggle-save"><svg class="tool-icon" viewBox="0 0 24 24">
+<g id="save">
+	<path d="M22.083,24H1.917C0.86,24,0,23.14,0,22.083V1.917C0,0.86,0.86,0,1.917,0h16.914L24,5.169v16.914   C24,23.14,23.14,24,22.083,24z M20,22h2V5.998l-3-3V9c0,1.103-0.897,2-2,2H7c-1.103,0-2-0.897-2-2V2H2v20h2v-7c0-1.103,0.897-2,2-2   h12c1.103,0,2,0.897,2,2V22z M6,22h12v-7.001L6,15V22z M7,2v7h10V2H7z"/>
+	<path d="M15,8h-4V3h4V8z"/>
+</g>
+</svg><br>Save</button>
+    <button id="toggle-grid"><svg  class="tool-icon" viewBox="0 0 24 24" stroke="none">
+
+  <line x1="8" y1="4" x2="8" y2="20"/>
+  <line x1="16" y1="4" x2="16" y2="20"/>
+  <line x1="4" y1="8" x2="20" y2="8"/>
+  <line x1="4" y1="16" x2="20" y2="16"/>
+</svg>
+<br>Grid</button>
+	<button id="toggle-autoarrange"><svg class="tool-icon" viewBox="0 0 24 24">
+  <line x1="2" y1="12" x2="9" y2="12"/>
+  <polyline points="6 9, 9 12, 6 15"/>
+  <line x1="22" y1="12" x2="15" y2="12"/>
+  <polyline points="18 9, 15 12, 18 15"/>
+</svg>
+<br>Arrange</button>
+	<button id="toggle-grid"><svg  class="tool-icon" viewBox="0 0 572.098 572.098">
+<g>
+	<g>
+		<path d="M99.187,398.999l44.333-44.332c-24.89-15.037-47.503-33.984-66.763-56.379c29.187-33.941,66.053-60.018,106.947-76.426    c-6.279,14.002-9.853,29.486-9.853,45.827c0,16.597,3.696,32.3,10.165,46.476l35.802-35.797    c-5.698-5.594-9.248-13.36-9.248-21.977c0-17.02,13.801-30.82,30.82-30.82c8.611,0,16.383,3.55,21.971,9.248l32.534-32.534    l36.635-36.628l18.366-18.373c-21.206-4.186-42.896-6.469-64.848-6.469c-107.663,0-209.732,52.155-273.038,139.518L0,298.288    l13.011,17.957C36.83,349.116,66.151,376.999,99.187,398.999z"/>
+		<path d="M459.208,188.998l-44.854,44.854c30.539,16.071,58.115,37.846,80.986,64.437    c-52.167,60.662-128.826,96.273-209.292,96.273c-10.3,0-20.533-0.6-30.661-1.744l-52.375,52.375    c26.903,6.887,54.762,10.57,83.036,10.57c107.663,0,209.738-52.154,273.038-139.523l13.011-17.957l-13.011-17.956    C532.023,242.995,497.844,212.15,459.208,188.998z"/>
+		<path d="M286.049,379.888c61.965,0,112.198-50.234,112.198-112.199c0-5.588-0.545-11.035-1.335-16.402L269.647,378.56    C275.015,379.349,280.461,379.888,286.049,379.888z"/>
+		<path d="M248.815,373.431L391.79,230.455l4.994-4.994l45.796-45.796l86.764-86.77c13.543-13.543,13.543-35.502,0-49.046    c-6.77-6.769-15.649-10.159-24.523-10.159s-17.754,3.384-24.522,10.159l-108.33,108.336l-22.772,22.772l-29.248,29.248    l-48.14,48.14l-34.456,34.456l-44.027,44.027l-33.115,33.115l-45.056,45.055l-70.208,70.203    c-13.543,13.543-13.543,35.502,0,49.045c6.769,6.77,15.649,10.16,24.523,10.16s17.754-3.385,24.523-10.16l88.899-88.898    l50.086-50.086L248.815,373.431z"/>
+	</g>
+</g>
+</svg><br>Hide UI</button>
+  </div>
+
+  <div id="tool-palette" class="floating-panel">
+    <button data-mode="select"><svg  class="tool-icon" viewBox="0 0 32 32" >
+       <path d="M4 2L28 14L18 16L20 30L4 2Z"/>
+</svg>Select</button>
+    <button data-mode="draw-node"><svg class="tool-icon" viewBox="0 0 24 24" >
+  <circle cx="12" cy="12" r="6"/>
+</svg> Node</button>
+    <button data-mode="draw-edge"><svg  class="tool-icon" viewBox="0 0 24 24" >
+  <line x1="6" y1="18" x2="18" y2="6"/>
+  <circle cx="6" cy="18" r="2"/>
+  <circle cx="18" cy="6" r="2"/>
+</svg>Connect</button>
+    <button data-mode="group"><svg class="tool-icon" viewBox="0 0 42 42" stroke-width="0" fill="none">
+  <circle cx="14" cy="13" r="11"/>
+  <circle cx="28" cy="13" r="11"/>
+  <circle cx="21" cy="24" r="11"/>
+</svg>Group</button>
+  </div>
+
+  <div id="properties-panel" class="floating-panel">
+    <h3>Properties</h3>
+    <label>Name: <input type="text" id="prop-name" /></label><br/>
+    <label>Sticky: <input type="checkbox" id="prop-sticky" /></label><br/>
+    <label>X: <input type="number" id="prop-x" /></label>
+    <label>Y: <input type="number" id="prop-y" /></label><br/>
+    <div id="prop-groups">
+      <h4>Groups</h4>
+      <ul id="group-list"></ul>
+    </div>
+  </div>
+
+  <div id="timeline-panel" class="floating-panel" style="display: none;">
+	<span id="timeline-label">YYYY/MM/DD</span>
+	<input type="range" id="timeline-slider" min="0" max="100" value="0" />
+    <span id="timeline-label">YYYY/MM/DD</span>
+  </div>
+
+  <svg id="graph-canvas"></svg>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  svg {
+    width: 100%;
+    height: 600px;
+    border: 1px solid #ccc;
+    cursor: crosshair;
+  }
+
+  .node {
+    stroke: white;
+    stroke-width: 1.5px;
+  }
+
+  .node.selected {
+    fill: red;
+  }
+
+  .node.default {
+    fill: steelblue;
+  }
+
+  .link {
+    stroke: #999;
+    stroke-opacity: 0.6;
+    stroke-width: 2px;
+  }
+
+  .group-bubble {
+    fill: lightblue;
+    stroke: blue;
+    stroke-width: 2px;
+    opacity: 0.3;
+  }
+</style>
+<body>
+<svg></svg>
+<div id="group-menu" style="
+  position: absolute;
+  display: none;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 8px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+  z-index: 10;
+">
+  <button id="select-group-b	tn">Select All</button>
+</div>
+<input id="node-label-input" type="text" style="
+  position: absolute;
+  display: none;
+  z-index: 10;
+  padding: 4px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background: white;
+"/>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+  const svg = d3.select("svg");
+  const selectionRect = svg.append("rect")
+  .attr("fill", "rgba(0, 0, 255, 0.1)")
+  .attr("stroke", "blue")
+  .attr("stroke-dasharray", "4")
+  .attr("visibility", "hidden");
+
+  const width = 800;
+  const height = 600;
+
+  let nodes = [];
+  let links = [];
+  let selectedNodes = new Set();
+  let nodeId = 0;
+  let groups = [];
+let isDragging = false;
+let dragStart = null;
+
+  const zoomLayer = svg.append("g").attr("class", "zoom-layer");
+  const groupLayer = zoomLayer.append("g").attr("class", "groups");
+  const linkGroup = zoomLayer.append("g").attr("class", "links");
+  const nodeGroup = zoomLayer.append("g").attr("class", "nodes");
+
+  svg.call(d3.zoom()
+    .scaleExtent([0.1, 5])
+    .on("zoom", (event) => {
+      zoomLayer.attr("transform", event.transform);
+    }));
+
+  svg.on("click", function(event) {
+    const [x, y] = d3.pointer(event, zoomLayer.node());
+    const target = event.target;
+
+    if (target.tagName === 'circle') return;
+
+    const newNode = { id: `node${nodeId++}`, x, y };
+    nodes.push(newNode);
+
+    if (selectedNodes.size === 1) {
+      const source = Array.from(selectedNodes)[0];
+      links.push({ source: source.id, target: newNode.id });
+    }
+
+    selectedNodes.clear();
+    restart();
+  });
+svg.on("mousedown", function(event) {
+  if (event.target.tagName === 'circle') return;
+
+  isDragging = true;
+  dragStart = d3.pointer(event, zoomLayer.node());
+
+  selectionRect
+    .attr("x", dragStart[0])
+    .attr("y", dragStart[1])
+    .attr("width", 0)
+    .attr("height", 0)
+    .attr("visibility", "visible");
+});
+
+  d3.select(window).on("keydown", (event) => {
+    if (event.ctrlKey && event.key === "g") {
+      if (selectedNodes.size > 1) {
+        const group = Array.from(selectedNodes);
+        groups.push(group);
+        selectedNodes.clear();
+        restart();
+      }
+    }
+  });
+
+  const simulation = d3.forceSimulation(nodes)
+    .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+    .force("charge", d3.forceManyBody().strength(-300))
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+  function restart() {
+    const link = linkGroup.selectAll("line")
+      .data(links)
+      .join("line")
+      .attr("class", "link");
+
+    const node = nodeGroup.selectAll("circle")
+      .data(nodes, d => d.id)
+      .join(
+        enter => enter.append("circle")
+          .attr("r", 10)
+          .attr("class", "node default")
+          .on("click", (event, d) => {
+  event.stopPropagation();
+
+  if (event.shiftKey) {
+    selectedNodes.has(d) ? selectedNodes.delete(d) : selectedNodes.add(d);
+  } else {
+    if (selectedNodes.size === 1 && !selectedNodes.has(d)) {
+      const source = Array.from(selectedNodes)[0];
+      links.push({ source: source.id, target: d.id });
+      selectedNodes.clear();
+    } else {
+      selectedNodes.clear();
+      selectedNodes.add(d);
+    }
+  }
+
+  // Show label input
+  const [x, y] = d3.pointer(event, svg.node());
+  labelInput.style.left = `${x + 10}px`;
+  labelInput.style.top = `${y + 10}px`;
+  labelInput.value = d.label || "";
+  labelInput.style.display = "block";
+  labelInput.focus();
+  labelingNode = d;
+
+  restart();
+})
+         .call(drag(simulation)),
+        update => update,
+        exit => exit.remove()
+      );
+
+    node.attr("class", d => "node " + (selectedNodes.has(d) ? "selected" : "default"));
+    node.append("title").text(d => d.label || d.id);
+
+
+const labelInput = document.getElementById("node-label-input");
+let labelingNode = null;
+
+labelInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && labelingNode) {
+    labelingNode.label = labelInput.value;
+    labelInput.style.display = "none";
+    labelingNode = null;
+    restart();
+  }
+});
+  const groupBubbles = groupLayer.selectAll("circle")
+  .data(groups)
+  .join("circle")
+  .attr("class", "group-bubble")
+  .attr("r", d => getMaxDistance(d, getCentroid(d)) + 30)
+  .attr("cx", d => getCentroid(d).x)
+  .attr("cy", d => getCentroid(d).y)
+  .on("contextmenu", (event, groupNodes) => {
+    event.preventDefault();
+    currentGroup = groupNodes;
+
+	 menu.style.left = `${event.pageX}px`;
+    menu.style.top = `${event.pageY}px`;
+    menu.style.display = "block";
+
+    restart();
+  });
+
+
+    simulation.nodes(nodes);
+    simulation.force("link").links(links);
+    simulation.alpha(1).restart();
+
+    simulation.on("tick", () => {
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      node
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+
+      groupBubbles
+        .attr("cx", d => getCentroid(d).x)
+        .attr("cy", d => getCentroid(d).y)
+        .attr("r", d => getMaxDistance(d, getCentroid(d)) + 30);
+    });
+	
+	const menu = document.getElementById("group-menu");
+const selectBtn = document.getElementById("select-group-btn");
+let currentGroup = null;
+
+selectBtn.onclick = () => {
+  if (currentGroup) {
+    selectedNodes = new Set(currentGroup);
+    restart();
+  }
+  menu.style.display = "none";
+};
+
+document.addEventListener("click", () => {
+  menu.style.display = "none";
+});
+
+  }
+
+  function getCentroid(nodes) {
+    const x = d3.mean(nodes, d => d.x);
+    const y = d3.mean(nodes, d => d.y);
+    return { x, y };
+  }
+
+  function getMaxDistance(nodes, center) {
+    return d3.max(nodes, d => Math.hypot(d.x - center.x, d.y - center.y));
+  }
+
+function drag(simulation) {
+  function dragstarted(event, d) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function dragged(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  function dragended(event, d) {
+    if (!event.active) simulation.alphaTarget(0);
+    // Do NOT clear fx/fy — node stays fixed
+  }
+
+  return d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended);
+}
+
+
+d3.select(window).on("keydown", (event) => {
+ event.preventDefault(); // prevent browser select-all
+  if (event.ctrlKey && event.key === "g") {
+    if (selectedNodes.size > 1) {
+      const group = Array.from(selectedNodes);
+      groups.push(group);
+      selectedNodes.clear();
+      restart();
+    }
+  }
+
+  if (event.ctrlKey && event.key.toLowerCase() === "l") {
+    selectedNodes.forEach(node => {
+      if (node.fx != null && node.fy != null) {
+        node.fx = null;
+        node.fy = null;
+      } else {
+        node.fx = node.x;
+        node.fy = node.y;
+      }
+    });
+    restart();
+  }
+  
+  if (event.ctrlKey && event.key.toLowerCase() === "a") {
+  event.preventDefault(); // prevent browser select-all
+  selectedNodes = new Set(nodes);
+  restart();
+}
+if (event.ctrlKey && event.key.toLowerCase() === "e") {
+  const selected = Array.from(selectedNodes);
+  for (let i = 0; i < selected.length; i++) {
+    for (let j = i + 1; j < selected.length; j++) {
+      const source = selected[i];
+      const target = selected[j];
+      // Avoid duplicate links
+      if (!links.some(l =>
+        (l.source.id === source.id && l.target.id === target.id) ||
+        (l.source.id === target.id && l.target.id === source.id)
+      )) {
+        links.push({ source: source.id, target: target.id });
+      }
+    }
+  }
+  restart();
+}
+
+}
+
+
+
+);
+
+
+
+</script>
+</body>
