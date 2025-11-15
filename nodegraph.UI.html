@@ -113,6 +113,7 @@ button .tool-icon {
   </style>
 </head>
 <body>
+ <!-- global toolbar -->
   <div id="ui-global" class="floating-panel">
     <button id="toggle-open"><svg   fill="#666" width="50%" height="50%" viewBox="0 0 512 512">
 
@@ -157,7 +158,7 @@ button .tool-icon {
 </g>
 </svg><br>Hide UI</button>
   </div>
-
+<!-- tool palette -->
   <div id="tool-palette" class="floating-panel">
     <button data-mode="select"><svg  class="tool-icon" viewBox="0 0 32 32" >
        <path d="M4 2L28 14L18 16L20 30L4 2Z"/>
@@ -176,7 +177,7 @@ button .tool-icon {
   <circle cx="21" cy="24" r="11"/>
 </svg>Group</button>
   </div>
-
+<!-- selected panel -->
   <div id="properties-panel" class="floating-panel">
     <h3>Properties</h3>
     <label>Name: <input type="text" id="prop-name" /></label><br/>
@@ -188,13 +189,87 @@ button .tool-icon {
       <ul id="group-list"></ul>
     </div>
   </div>
-
+<!-- timeline panel  -->
   <div id="timeline-panel" class="floating-panel" style="display: none;">
 	<span id="timeline-label">YYYY/MM/DD</span>
 	<input type="range" id="timeline-slider" min="0" max="100" value="0" />
     <span id="timeline-label">YYYY/MM/DD</span>
   </div>
 
+<!-- Graph viewport -->
   <svg id="graph-canvas"></svg>
+
+  <!-- Load D3 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- Graph Logic -->
+  <script>
+    // Basic D3 simulation
+    const svg = d3.select("#graph-canvas");
+    const width = window.innerWidth, height = window.innerHeight;
+
+    let nodes = [], links = [];
+    let selectedNode = null;
+
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).distance(100))
+      .force("charge", d3.forceManyBody().strength(-200))
+      .force("center", d3.forceCenter(width/2, height/2));
+
+    // Example: Save graph
+    function saveGraph() {
+      const data = { nodes, links };
+      console.log("Graph saved:", JSON.stringify(data));
+      alert("Graph saved to console!");
+    }
+
+    // Example: Toggle grid
+    function toggleGrid() {
+      svg.classed("grid", !svg.classed("grid"));
+    }
+
+    // Example: Arrange nodes
+    function arrangeNodes() {
+      simulation.alpha(1).restart();
+    }
+
+    // Update properties panel when node selected
+    function updatePropertiesPanel(node) {
+      document.getElementById("node-name").value = node.label || "";
+      document.getElementById("node-sticky").checked = node.fx !== undefined;
+      document.getElementById("node-x").value = node.x.toFixed(2);
+      document.getElementById("node-y").value = node.y.toFixed(2);
+    }
+
+    // Wire up UI buttons
+    document.getElementById("toggle-save").addEventListener("click", saveGraph);
+    document.getElementById("toggle-grid").addEventListener("click", toggleGrid);
+    document.getElementById("toggle-arrange").addEventListener("click", arrangeNodes);
+    document.getElementById("toggle-ui").addEventListener("click", () => {
+      document.querySelectorAll(".ui-panel").forEach(p => p.classList.toggle("hidden"));
+    });
+
+    // Timeline slider
+    document.getElementById("timeline-slider").addEventListener("input", e => {
+      console.log("Timeline index:", e.target.value);
+      // loadGraphState(e.target.value); // implement snapshot logic
+    });
+
+    // Example node creation
+    nodes.push({ id: 1, x: width/2, y: height/2, label:"Start" });
+    simulation.nodes(nodes).on("tick", () => {
+      svg.selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("r", 20)
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .on("click", d => {
+          selectedNode = d;
+          updatePropertiesPanel(d);
+        });
+    });
+  </script>
 </body>
 </html>
+
