@@ -9,5 +9,5 @@ prototype user interface
 https://julesbuh.github.io/ifcjs-officejs/nodegraph.UI.html
 
 prototype interaction
-https://julesbuh.github.io/ifcjs-officejs/nodegraph.P01.html
+https://julesbuh.github.io/ifcjs-officejs/nodegraph-P01.01.html
 
