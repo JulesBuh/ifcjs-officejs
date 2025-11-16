@@ -347,6 +347,7 @@ drawNodeBtn.addEventListener("click", () => {
   // Update button styles
   drawNodeBtn.classList.toggle("active", drawNodeMode);
   drawEdgeBtn.classList.remove("active");
+selectBtn.classList.remove("active");
 
   console.log(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
   render(); // refresh colors
@@ -377,6 +378,7 @@ const drawEdgeBtn = document.querySelector("[data-mode='draw-edge']");
 drawEdgeBtn.addEventListener("click", () => {
   drawEdgeMode = !drawEdgeMode;
   drawNodeMode = false; // disable node mode if active
+selectBtn.classList.remove("active");
 
   // Clear selections
   selectedNode = null;
