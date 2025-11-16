@@ -516,8 +516,10 @@ function render() {
         console.log(`Selected node ${d.label}`);
         render();
       }
-    });
-    .call(drag);
+  
+    })
+      .call(drag);
+
 }
 
 // === Properties panel ===
