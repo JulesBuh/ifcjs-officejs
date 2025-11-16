@@ -11,6 +11,8 @@
   background: #ddf;
   overflow: hidden;
 }
+
+
 /* Default desktop */
 #ui-global button,
 #tool-palette button {
@@ -46,6 +48,12 @@
   color: #666;
   text-align: center;
 }
+
+button.active {
+  background-color: #007BFF; /* Bootstrap blue */
+  color: white;
+}
+
 
 .floating-panel {
   position: absolute;
@@ -320,20 +328,33 @@ function arrangeNodes() {
   simulation.alpha(1).restart();
 }
 
-// Toggle draw node mode
-document.querySelector("[data-mode='draw-node']").addEventListener("click", () => {
+// Draw Node Mode
+const drawNodeBtn = document.querySelector("[data-mode='draw-node']");
+drawNodeBtn.addEventListener("click", () => {
   drawNodeMode = !drawNodeMode;
   drawEdgeMode = false; // disable edge mode if active
+
+  // Update button styles
+  drawNodeBtn.classList.toggle("active", drawNodeMode);
+  drawEdgeBtn.classList.remove("active");
+
   console.log(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
 });
 
-// Toggle draw edge mode
-document.querySelector("[data-mode='draw-edge']").addEventListener("click", () => {
+// Draw Edge Mode
+const drawEdgeBtn = document.querySelector("[data-mode='draw-edge']");
+drawEdgeBtn.addEventListener("click", () => {
   drawEdgeMode = !drawEdgeMode;
   drawNodeMode = false; // disable node mode if active
   edgeSourceNode = null;
+
+  // Update button styles
+  drawEdgeBtn.classList.toggle("active", drawEdgeMode);
+  drawNodeBtn.classList.remove("active");
+
   console.log(drawEdgeMode ? "Edge drawing mode ON" : "Edge drawing mode OFF");
 });
+
 
 // Canvas click to add node
 svg.on("click", (event) => {
