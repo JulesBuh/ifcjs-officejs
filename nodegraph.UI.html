@@ -295,6 +295,7 @@ let edgeSourceNode = null;
 const selectBtn   = document.querySelector("[data-mode='select']");
 const drawNodeBtn = document.querySelector("[data-mode='draw-node']");
 const drawEdgeBtn = document.querySelector("[data-mode='draw-edge']");
+const arrangeBtn = document.getElementById("toggle-autoarrange");
 
 // Activate initial button style
 drawNodeBtn.classList.add("active");
@@ -381,15 +382,25 @@ function toggleGrid() {
   console.log("Grid toggled:", !current);
 }
 
-function arrangeNodes() {
-  console.log("Auto-arrange triggered");
 
-  // Disable charge force (repulsion)
-  simulation.force("charge", null);
+arrangeBtn.addEventListener("click", () => {
+  const isActive = arrangeBtn.classList.contains("active");
 
-  // Optionally restart to let link/center forces settle
+  if (isActive) {
+    // Turn OFF charge
+    simulation.force("charge", null);
+    arrangeBtn.classList.remove("active");
+    console.log("Charge force OFF");
+  } else {
+    // Turn ON charge
+    simulation.force("charge", d3.forceManyBody().strength(-200));
+    arrangeBtn.classList.add("active");
+    console.log("Charge force ON");
+  }
+
   simulation.alpha(1).restart();
-}
+});
+
 
 
 // === Mode toggles ===
