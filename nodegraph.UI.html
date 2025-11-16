@@ -340,11 +340,36 @@ drawNodeBtn.addEventListener("click", () => {
   drawNodeMode = !drawNodeMode;
   drawEdgeMode = false; // disable edge mode if active
 
+  // Clear selections
+  selectedNode = null;
+  edgeSourceNode = null;
+
   // Update button styles
   drawNodeBtn.classList.toggle("active", drawNodeMode);
   drawEdgeBtn.classList.remove("active");
 
   console.log(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
+  render(); // refresh colors
+});
+
+// Select Mode
+const selectBtn = document.querySelector("[data-mode='select']");
+selectBtn.addEventListener("click", () => {
+  // Turn off other modes
+  drawNodeMode = false;
+  drawEdgeMode = false;
+
+  // Clear selections
+  selectedNode = null;
+  edgeSourceNode = null;
+
+  // Update button styles
+  selectBtn.classList.add("active");
+  drawNodeBtn.classList.remove("active");
+  drawEdgeBtn.classList.remove("active");
+
+  console.log("Select mode ON");
+  render(); // refresh colors so no nodes remain highlighted
 });
 
 // Draw Edge Mode
@@ -352,6 +377,9 @@ const drawEdgeBtn = document.querySelector("[data-mode='draw-edge']");
 drawEdgeBtn.addEventListener("click", () => {
   drawEdgeMode = !drawEdgeMode;
   drawNodeMode = false; // disable node mode if active
+
+  // Clear selections
+  selectedNode = null;
   edgeSourceNode = null;
 
   // Update button styles
@@ -359,7 +387,9 @@ drawEdgeBtn.addEventListener("click", () => {
   drawNodeBtn.classList.remove("active");
 
   console.log(drawEdgeMode ? "Edge drawing mode ON" : "Edge drawing mode OFF");
+  render(); // refresh colors
 });
+
 
 
 // Canvas click to add node
