@@ -8,7 +8,7 @@
     body {
   margin: 0;
   font-family: sans-serif;
-  background: #eef;
+  background: #ddf;
   overflow: hidden;
 }
 /* Default desktop */
@@ -267,6 +267,12 @@ button .tool-icon {
   <!-- Graph Logic -->
 
 
+
+
+
+
+
+  
 <script>
 // Setup
 const svg = d3.select("#graph-canvas");
@@ -275,12 +281,25 @@ const height = window.innerHeight;
 let nodes = [], links = [];
 let selectedNode = null;
 let drawNodeMode = false;
+let drawEdgeMode = false;
+let edgeSourceNode = null;
+
+// Add a group for zoom/pan
+const svgGroup = svg.append("g");
 
 // D3 simulation
 const simulation = d3.forceSimulation(nodes)
   .force("link", d3.forceLink(links).distance(100))
   .force("charge", d3.forceManyBody().strength(-200))
   .force("center", d3.forceCenter(width / 2, height / 2));
+
+// Zoom behavior
+const zoom = d3.zoom()
+  .scaleExtent([0.1, 4])
+  .on("zoom", (event) => {
+    svgGroup.attr("transform", event.transform);
+  });
+svg.call(zoom);
 
 // Save graph
 function saveGraph() {
@@ -304,11 +323,20 @@ function arrangeNodes() {
 // Toggle draw node mode
 document.querySelector("[data-mode='draw-node']").addEventListener("click", () => {
   drawNodeMode = !drawNodeMode;
+  drawEdgeMode = false; // disable edge mode if active
   alert(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
 });
 
+// Toggle draw edge mode
+document.querySelector("[data-mode='draw-edge']").addEventListener("click", () => {
+  drawEdgeMode = !drawEdgeMode;
+  drawNodeMode = false; // disable node mode if active
+  edgeSourceNode = null;
+  alert(drawEdgeMode ? "Edge drawing mode ON" : "Edge drawing mode OFF");
+});
+
 // Canvas click to add node
-document.getElementById("graph-canvas").addEventListener("click", (event) => {
+svg.on("click", (event) => {
   if (!drawNodeMode) return;
 
   const pt = svg.node().createSVGPoint();
@@ -330,20 +358,8 @@ document.getElementById("graph-canvas").addEventListener("click", (event) => {
 
 // Render function
 function render() {
-  svg.selectAll("circle")
-    .data(nodes)
-    .join("circle")
-    .attr("r", 20)
-    .attr("cx", d => d.x)
-    .attr("cy", d => d.y)
-    .attr("fill", "#88f")
-    .on("click", (event, d) => {
-      selectedNode = d;
-      updatePropertiesPanel(d);
-      event.stopPropagation(); // prevent canvas click
-    });
-
-  svg.selectAll("line")
+  // Links
+  svgGroup.selectAll("line")
     .data(links)
     .join("line")
     .attr("x1", d => d.source.x)
@@ -352,6 +368,35 @@ function render() {
     .attr("y2", d => d.target.y)
     .attr("stroke", "#999")
     .attr("stroke-width", 2);
+
+  // Nodes
+  svgGroup.selectAll("circle")
+    .data(nodes)
+    .join("circle")
+    .attr("r", 20)
+    .attr("cx", d => d.x)
+    .attr("cy", d => d.y)
+    .attr("fill", "#88f")
+    .on("click", (event, d) => {
+      event.stopPropagation(); // prevent canvas click
+
+      if (drawEdgeMode) {
+        if (!edgeSourceNode) {
+          edgeSourceNode = d;
+          alert(`Selected source node ${d.label}`);
+        } else {
+          links.push({ source: edgeSourceNode, target: d });
+          simulation.force("link").links(links);
+          simulation.alpha(1).restart();
+          edgeSourceNode = null;
+          render();
+          alert(`Edge created between ${links[links.length-1].source.label} and ${d.label}`);
+        }
+      } else {
+        selectedNode = d;
+        updatePropertiesPanel(d);
+      }
+    });
 }
 
 // Update properties panel
@@ -371,6 +416,7 @@ document.getElementById("toggle-autoarrange").addEventListener("click", arrangeN
 nodes.push({ id: 1, x: width / 2, y: height / 2, label: "Start" });
 simulation.nodes(nodes).on("tick", render);
 </script>
+
 
 </body>
 </html>
