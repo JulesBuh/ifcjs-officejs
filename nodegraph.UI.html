@@ -264,11 +264,23 @@ button .tool-icon {
     // Example: Toggle grid
     function toggleGrid() {
       svg.classed("grid", !svg.classed("grid"));
+    alert("grid");
     }
 
     // Example: Arrange nodes
     function arrangeNodes() {
       simulation.alpha(1).restart();
+      alert("turn on gravity");
+    }
+    
+    // Example: node mode
+    function drawnodes() {
+      alert("node mode");
+    }
+    
+    // Example: edge mode
+    function drawedge() {
+      alert("edge mode");
     }
 
     // Update properties panel when node selected
@@ -283,6 +295,8 @@ button .tool-icon {
     document.getElementById("toggle-save").addEventListener("click", saveGraph);
     document.getElementById("toggle-grid").addEventListener("click", toggleGrid);
     document.getElementById("toggle-arrange").addEventListener("click", arrangeNodes);
+    document.getElementById("draw-node").addEventListener("click", drawnode);
+    document.getElementById("draw-edge").addEventListener("click", drawedge);
     document.getElementById("toggle-ui").addEventListener("click", () => {
       document.querySelectorAll(".ui-panel").forEach(p => p.classList.toggle("hidden"));
     });
