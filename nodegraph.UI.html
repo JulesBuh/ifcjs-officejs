@@ -309,8 +309,9 @@ const svgGroup = svg.append("g");
 // === Simulation ===
 const simulation = d3.forceSimulation(nodes)
   .force("link", d3.forceLink(links).distance(100))
-  .force("charge", d3.forceManyBody().strength(-200)) // start strong
-  .force("center", d3.forceCenter(width / 2, height / 2));
+  .force("charge", d3.forceManyBody().strength(-200)) // start strong repulsion
+  .force("center", d3.forceCenter(width / 2, height / 2))
+  .force("collision", d3.forceCollide().radius(25)); // anti-collision radius
 
 // === Zoom / Pan ===
 const zoom = d3.zoom()
@@ -391,19 +392,20 @@ arrangeBtn.addEventListener("click", () => {
   const isActive = arrangeBtn.classList.contains("active");
 
   if (isActive) {
-    // Switch to weak charge
-    simulation.force("charge", d3.forceManyBody().strength(500));
+    // Switch to attraction
+    simulation.force("charge", d3.forceManyBody().strength(80));
     arrangeBtn.classList.remove("active");
-    console.log("Charge force WEAK (arranged)");
+    console.log("Charge force ATTRACTING (arranged)");
   } else {
-    // Switch to strong charge
-    simulation.force("charge", d3.forceManyBody().strength(-100));
+    // Switch to strong repulsion
+    simulation.force("charge", d3.forceManyBody().strength(-200));
     arrangeBtn.classList.add("active");
-    console.log("Charge force STRONG (repelling)");
+    console.log("Charge force REPELLING (spread out)");
   }
 
   simulation.alpha(1).restart();
 });
+
 
 // === Canvas interactions ===
 svg.on("click", (event) => {
