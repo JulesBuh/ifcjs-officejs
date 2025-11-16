@@ -163,6 +163,10 @@ button.active {
   }
 }
 
+circle.selected {
+  fill: orange;
+}
+
 
 button .tool-icon {
   width: 50%;
@@ -377,7 +381,6 @@ svg.on("click", (event) => {
   render();
 });
 
-// Render function
 function render() {
   // Links
   svgGroup.selectAll("line")
@@ -397,7 +400,15 @@ function render() {
     .attr("r", 20)
     .attr("cx", d => d.x)
     .attr("cy", d => d.y)
-    .attr("fill", "#88f")
+    .attr("fill", d => {
+      if (drawEdgeMode && edgeSourceNode && d.id === edgeSourceNode.id) {
+        return "orange"; // highlight source node in edge mode
+      }
+      if (selectedNode && d.id === selectedNode.id) {
+        return "orange"; // highlight selected node
+      }
+      return "#88f"; // default blue
+    })
     .on("click", (event, d) => {
       event.stopPropagation(); // prevent canvas click
 
@@ -409,16 +420,18 @@ function render() {
           links.push({ source: edgeSourceNode, target: d });
           simulation.force("link").links(links);
           simulation.alpha(1).restart();
+          console.log(`Edge created between ${edgeSourceNode.label} and ${d.label}`);
           edgeSourceNode = null;
-          render();
-          console.log(`Edge created between ${links[links.length-1].source.label} and ${d.label}`);
         }
       } else {
         selectedNode = d;
         updatePropertiesPanel(d);
+        console.log(`Selected node ${d.label}`);
       }
+      render(); // re-render to update colors
     });
 }
+
 
 // Update properties panel
 function updatePropertiesPanel(node) {
