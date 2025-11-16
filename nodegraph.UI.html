@@ -276,6 +276,7 @@ button .tool-icon {
 
   <!-- Load D3 -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
+
 <script>
 // === Setup ===
 const svg = d3.select("#graph-canvas");
@@ -295,20 +296,20 @@ let edgeSourceNode = null;
 const selectBtn   = document.querySelector("[data-mode='select']");
 const drawNodeBtn = document.querySelector("[data-mode='draw-node']");
 const drawEdgeBtn = document.querySelector("[data-mode='draw-edge']");
-const arrangeBtn = document.getElementById("toggle-autoarrange");
+const arrangeBtn  = document.getElementById("toggle-autoarrange");
 
 // Activate initial button style
 drawNodeBtn.classList.add("active");
 drawEdgeBtn.classList.remove("active");
 selectBtn.classList.remove("active");
 
-// Group for all rendered graph content (so zoom/pan transforms this)
+// Group for all rendered graph content
 const svgGroup = svg.append("g");
 
 // === Simulation ===
 const simulation = d3.forceSimulation(nodes)
   .force("link", d3.forceLink(links).distance(100))
-  .force("charge", d3.forceManyBody().strength(-200))
+  .force("charge", d3.forceManyBody().strength(-200)) // start strong
   .force("center", d3.forceCenter(width / 2, height / 2));
 
 // === Zoom / Pan ===
@@ -320,46 +321,19 @@ const zoom = d3.zoom()
 
 svg.call(zoom);
 
-// Helper: get SVG-local coordinates, accounting for zoom/pan
+// Helper: get SVG-local coordinates
 function getSvgPoint(event) {
   const pt = svgNode.createSVGPoint();
-  // Use offsetX/Y for element-relative coords (mobile-friendly), then map through current transform
   pt.x = event.offsetX ?? event.clientX;
   pt.y = event.offsetY ?? event.clientY;
-  const ctm = svgNode.getScreenCTM();
-  // When zoom has transformed <g>, we must invert the current transform of the group:
-  const transform = svgGroup.node().transform.baseVal.consolidate();
-  if (transform) {
-    const matrix = transform.matrix;
-    // Invert the group transform manually
-    const inv = matrix.inverse();
-    return {
-      x: (pt.x - inv.e) / inv.a,
-      y: (pt.y - inv.f) / inv.d
-    };
-  }
-  // Fallback using screen CTM
-  const local = pt.matrixTransform(ctm.inverse());
+  const local = pt.matrixTransform(svgNode.getScreenCTM().inverse());
   return { x: local.x, y: local.y };
 }
 
-// Helper: recenter and auto-zoom to fit nodes with margin
-// Preventer: clears selections when switching modes
-function clearSelections() {
-  selectedNode = null;
-  edgeSourceNode = null;
-  render();
-}
-
-// Soft zoom out around current centre
+// Helper: soft zoom out around current centre
 function recenterAndZoom() {
-  // Get current transform (defaults to identity if none)
   const currentTransform = d3.zoomTransform(svg.node());
-
-  // Compute new scale (soft zoom out)
-  const newScale = currentTransform.k * 0.85; // reduce scale ~15%
-
-  // Keep same centre translation, just adjust scale
+  const newScale = currentTransform.k * 0.85; // zoom out ~15%
   const tx = currentTransform.x;
   const ty = currentTransform.y;
 
@@ -369,45 +343,10 @@ function recenterAndZoom() {
   );
 }
 
-
-// === Core actions ===
-function saveGraph() {
-  const data = { nodes, links };
-  console.log("Graph saved:", JSON.stringify(data));
-}
-
-function toggleGrid() {
-  const current = svg.classed("grid");
-  svg.classed("grid", !current);
-  console.log("Grid toggled:", !current);
-}
-
-
-arrangeBtn.addEventListener("click", () => {
-  const isActive = arrangeBtn.classList.contains("active");
-
-  if (isActive) {
-    // Turn OFF charge
-    simulation.force("charge", null);
-    arrangeBtn.classList.remove("active");
-    console.log("Charge force OFF");
-  } else {
-    // Turn ON charge
-    simulation.force("charge", d3.forceManyBody().strength(-200));
-    arrangeBtn.classList.add("active");
-    console.log("Charge force ON");
-  }
-
-  simulation.alpha(1).restart();
-});
-
-
-
 // === Mode toggles ===
 selectBtn.addEventListener("click", () => {
   drawNodeMode = false;
   drawEdgeMode = false;
-
   selectedNode = null;
   edgeSourceNode = null;
 
@@ -422,7 +361,6 @@ selectBtn.addEventListener("click", () => {
 drawNodeBtn.addEventListener("click", () => {
   drawNodeMode = !drawNodeMode;
   drawEdgeMode = false;
-
   selectedNode = null;
   edgeSourceNode = null;
 
@@ -437,7 +375,6 @@ drawNodeBtn.addEventListener("click", () => {
 drawEdgeBtn.addEventListener("click", () => {
   drawEdgeMode = !drawEdgeMode;
   drawNodeMode = false;
-
   selectedNode = null;
   edgeSourceNode = null;
 
@@ -447,6 +384,25 @@ drawEdgeBtn.addEventListener("click", () => {
 
   console.log(drawEdgeMode ? "Edge drawing mode ON" : "Edge drawing mode OFF");
   render();
+});
+
+// === Arrange toggle ===
+arrangeBtn.addEventListener("click", () => {
+  const isActive = arrangeBtn.classList.contains("active");
+
+  if (isActive) {
+    // Switch to weak charge
+    simulation.force("charge", d3.forceManyBody().strength(-20));
+    arrangeBtn.classList.remove("active");
+    console.log("Charge force WEAK (arranged)");
+  } else {
+    // Switch to strong charge
+    simulation.force("charge", d3.forceManyBody().strength(-200));
+    arrangeBtn.classList.add("active");
+    console.log("Charge force STRONG (repelling)");
+  }
+
+  simulation.alpha(1).restart();
 });
 
 // === Canvas interactions ===
@@ -463,10 +419,10 @@ svg.on("click", (event) => {
 
   nodes.push(newNode);
 
-  // If a node is currently selected, connect it to the new one
+  // Auto-connect if a node is selected
   if (selectedNode) {
     links.push({ source: selectedNode, target: newNode });
-    console.log(`Auto‑connected ${selectedNode.label} → ${newNode.label}`);
+    console.log(`Auto-connected ${selectedNode.label} → ${newNode.label}`);
   }
 
   simulation.nodes(nodes);
@@ -476,8 +432,6 @@ svg.on("click", (event) => {
   render();
   recenterAndZoom();
 });
-
-  
 
 // === Rendering ===
 function render() {
@@ -504,48 +458,41 @@ function render() {
       if (selectedNode && d.id === selectedNode.id) return "orange";
       return "#88f";
     })
-.on("click", (event, d) => {
-  event.stopPropagation();
+    .on("click", (event, d) => {
+      event.stopPropagation();
 
-  if (drawEdgeMode) {
-    if (!edgeSourceNode) {
-      edgeSourceNode = d;
-      console.log(`Selected source node ${d.label}`);
-    } else {
-      // Check if link already exists (undirected)
-      const existingIndex = links.findIndex(l =>
-        (l.source.id === edgeSourceNode.id && l.target.id === d.id) ||
-        (l.source.id === d.id && l.target.id === edgeSourceNode.id)
-      );
+      if (drawEdgeMode) {
+        if (!edgeSourceNode) {
+          edgeSourceNode = d;
+          console.log(`Selected source node ${d.label}`);
+        } else {
+          // Toggle edge (undirected)
+          const existingIndex = links.findIndex(l =>
+            (l.source.id === edgeSourceNode.id && l.target.id === d.id) ||
+            (l.source.id === d.id && l.target.id === edgeSourceNode.id)
+          );
 
-      if (existingIndex >= 0) {
-        // Remove existing link
-        links.splice(existingIndex, 1);
-        console.log(`Removed edge between ${edgeSourceNode.label} and ${d.label}`);
+          if (existingIndex >= 0) {
+            links.splice(existingIndex, 1);
+            console.log(`Removed edge between ${edgeSourceNode.label} and ${d.label}`);
+          } else {
+            links.push({ source: edgeSourceNode, target: d });
+            console.log(`Added edge between ${edgeSourceNode.label} and ${d.label}`);
+          }
+
+          simulation.force("link").links(links);
+          simulation.alpha(1).restart();
+          edgeSourceNode = null;
+          render();
+          recenterAndZoom();
+        }
       } else {
-        // Add new link
-        links.push({ source: edgeSourceNode, target: d });
-        console.log(`Added edge between ${edgeSourceNode.label} and ${d.label}`);
+        selectedNode = d;
+        updatePropertiesPanel(d);
+        console.log(`Selected node ${d.label}`);
+        render();
       }
-
-      // Refresh simulation
-      simulation.force("link").links(links);
-      simulation.alpha(1).restart();
-
-      // Reset selection
-      edgeSourceNode = null;
-      render();
-      recenterAndZoom();
-    }
-  } else {
-    selectedNode = d;
-    updatePropertiesPanel(d);
-    console.log(`Selected node ${d.label}`);
-    render();
-  }
-});
-
-
+    });
 }
 
 // === Properties panel ===
@@ -562,13 +509,22 @@ function updatePropertiesPanel(node) {
 }
 
 // === Top toolbar ===
-document.getElementById("toggle-save").addEventListener("click", saveGraph);
-document.getElementById("toggle-grid").addEventListener("click", toggleGrid);
-document.getElementById("toggle-autoarrange").addEventListener("click", arrangeNodes);
+document.getElementById("toggle-save").addEventListener("click", () => {
+  const data = { nodes, links };
+  console.log("Graph saved:", JSON.stringify(data));
+});
+
+document.getElementById("toggle-grid").addEventListener("click", () => {
+  const current = svg.classed("grid");
+  svg.classed("grid", !current);
+  console.log("Grid toggled:", !current);
+});
 
 // === Start simulation ===
 simulation.nodes(nodes).on("tick", render);
 </script>
+
+  
 
   
 
