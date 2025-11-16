@@ -343,32 +343,31 @@ function getSvgPoint(event) {
 }
 
 // Helper: recenter and auto-zoom to fit nodes with margin
-function recenterAndZoom() {
-  if (nodes.length === 0) return;
-
-  const minX = d3.min(nodes, d => d.x);
-  const maxX = d3.max(nodes, d => d.x);
-  const minY = d3.min(nodes, d => d.y);
-  const maxY = d3.max(nodes, d => d.y);
-
-  let graphWidth = Math.max(1, maxX - minX);
-  let graphHeight = Math.max(1, maxY - minY);
-
-  const marginFactor = 1.4;
-  const scale = Math.min(
-    width / (graphWidth * marginFactor),
-    height / (graphHeight * marginFactor)
-  );
-
-  const centerX = minX + graphWidth / 2;
-  const centerY = minY + graphHeight / 2;
-
-  const tx = width / 2 - centerX * scale;
-  const ty = height / 2 - centerY * scale;
-
-  //svg.transition().duration(400)
-   // .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+// Preventer: clears selections when switching modes
+function clearSelections() {
+  selectedNode = null;
+  edgeSourceNode = null;
+  render();
 }
+
+// Soft zoom out around current centre
+function recenterAndZoom() {
+  // Get current transform (defaults to identity if none)
+  const currentTransform = d3.zoomTransform(svg.node());
+
+  // Compute new scale (soft zoom out)
+  const newScale = currentTransform.k * 0.85; // reduce scale ~15%
+
+  // Keep same centre translation, just adjust scale
+  const tx = currentTransform.x;
+  const ty = currentTransform.y;
+
+  svg.transition().duration(400).call(
+    zoom.transform,
+    d3.zoomIdentity.translate(tx, ty).scale(newScale)
+  );
+}
+
 
 // === Core actions ===
 function saveGraph() {
