@@ -272,6 +272,8 @@ button .tool-icon {
 
     let nodes = [], links = [];
     let selectedNode = null;
+    let drawNodeMode = false;
+
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).distance(100))
@@ -298,9 +300,11 @@ button .tool-icon {
     }
     
     // Example: node mode
-    function drawnodes() {
-      alert("node mode");
-    }
+    document.getElementById("draw-node").addEventListener("click", () => {
+  drawNodeMode = !drawNodeMode;
+  alert(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
+});
+
     
     // Example: edge mode
     function drawedge() {
@@ -330,6 +334,28 @@ button .tool-icon {
       console.log("Timeline index:", e.target.value);
       // loadGraphState(e.target.value); // implement snapshot logic
     });
+
+document.getElementById("graph-canvas").addEventListener("click", (event) => {
+  if (!drawNodeMode) return;
+
+  const svg = document.getElementById("graph-canvas");
+  const pt = svg.createSVGPoint();
+  pt.x = event.clientX;
+  pt.y = event.clientY;
+  const cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+  const newNode = {
+    id: nodes.length + 1,
+    x: cursorpt.x,
+    y: cursorpt.y,
+    label: `Node ${nodes.length + 1}`
+  };
+
+  nodes.push(newNode);
+  simulation.nodes(nodes).alpha(1).restart();
+});
+
+
 
     // Example node creation
     nodes.push({ id: 1, x: width/2, y: height/2, label:"Start" });
