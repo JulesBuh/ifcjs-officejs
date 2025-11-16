@@ -504,7 +504,7 @@ function render() {
       if (selectedNode && d.id === selectedNode.id) return "orange";
       return "#88f";
     })
-   .on("click", (event, d) => {
+.on("click", (event, d) => {
   event.stopPropagation();
 
   if (drawEdgeMode) {
@@ -528,12 +528,14 @@ function render() {
         console.log(`Added edge between ${edgeSourceNode.label} and ${d.label}`);
       }
 
-      // Update simulation
+      // Refresh simulation
       simulation.force("link").links(links);
       simulation.alpha(1).restart();
+
+      // Reset selection
       edgeSourceNode = null;
-      recenterAndZoom();
       render();
+      recenterAndZoom();
     }
   } else {
     selectedNode = d;
@@ -542,6 +544,7 @@ function render() {
     render();
   }
 });
+
 
 }
 
