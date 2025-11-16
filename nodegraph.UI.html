@@ -324,7 +324,7 @@ function arrangeNodes() {
 document.querySelector("[data-mode='draw-node']").addEventListener("click", () => {
   drawNodeMode = !drawNodeMode;
   drawEdgeMode = false; // disable edge mode if active
-  alert(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
+  console.log(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
 });
 
 // Toggle draw edge mode
@@ -332,7 +332,7 @@ document.querySelector("[data-mode='draw-edge']").addEventListener("click", () =
   drawEdgeMode = !drawEdgeMode;
   drawNodeMode = false; // disable node mode if active
   edgeSourceNode = null;
-  alert(drawEdgeMode ? "Edge drawing mode ON" : "Edge drawing mode OFF");
+  console.log(drawEdgeMode ? "Edge drawing mode ON" : "Edge drawing mode OFF");
 });
 
 // Canvas click to add node
@@ -383,14 +383,14 @@ function render() {
       if (drawEdgeMode) {
         if (!edgeSourceNode) {
           edgeSourceNode = d;
-          alert(`Selected source node ${d.label}`);
+          console.log(`Selected source node ${d.label}`);
         } else {
           links.push({ source: edgeSourceNode, target: d });
           simulation.force("link").links(links);
           simulation.alpha(1).restart();
           edgeSourceNode = null;
           render();
-          alert(`Edge created between ${links[links.length-1].source.label} and ${d.label}`);
+          console.log(`Edge created between ${links[links.length-1].source.label} and ${d.label}`);
         }
       } else {
         selectedNode = d;
