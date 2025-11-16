@@ -64,7 +64,16 @@
   flex-direction: column;
   gap: 6px;
 }
-#tool-palette button {
+
+/* Mobile portrait */
+@media (max-width: 400px) and (orientation: portrait) {
+#tool-palette {
+  top: 100px;
+  left: 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+}#tool-palette button {
   padding: 0;
   font-size: 12px;
   color: #666;
