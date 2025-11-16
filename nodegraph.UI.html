@@ -344,6 +344,28 @@ function recenterAndZoom() {
   );
 }
 
+const drag = d3.drag()
+  .on("start", (event, d) => {
+    if (!selectBtn.classList.contains("active")) return; // only in select mode
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  })
+  .on("drag", (event, d) => {
+    if (!selectBtn.classList.contains("active")) return;
+    d.fx = event.x;
+    d.fy = event.y;
+  })
+  .on("end", (event, d) => {
+    if (!selectBtn.classList.contains("active")) return;
+    if (!event.active) simulation.alphaTarget(0);
+    // If you want nodes to stay fixed after dragging, keep d.fx/d.fy
+    // If you want them to float again, clear them:
+    d.fx = null;
+    d.fy = null;
+  });
+
+
 // === Mode toggles ===
 selectBtn.addEventListener("click", () => {
   drawNodeMode = false;
@@ -495,6 +517,7 @@ function render() {
         render();
       }
     });
+    .call(drag);
 }
 
 // === Properties panel ===
