@@ -383,8 +383,14 @@ function toggleGrid() {
 
 function arrangeNodes() {
   console.log("Auto-arrange triggered");
+
+  // Disable charge force (repulsion)
+  simulation.force("charge", null);
+
+  // Optionally restart to let link/center forces settle
   simulation.alpha(1).restart();
 }
+
 
 // === Mode toggles ===
 selectBtn.addEventListener("click", () => {
