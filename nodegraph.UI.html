@@ -366,8 +366,8 @@ function recenterAndZoom() {
   const tx = width / 2 - centerX * scale;
   const ty = height / 2 - centerY * scale;
 
-  svg.transition().duration(400)
-    .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+  //svg.transition().duration(400)
+   // .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 }
 
 // === Core actions ===
