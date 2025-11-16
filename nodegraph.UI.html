@@ -8,7 +8,7 @@
     body {
   margin: 0;
   font-family: sans-serif;
-  background: #ddf;
+  background: #eef;
   overflow: hidden;
 }
 /* Default desktop */
@@ -265,84 +265,56 @@ button .tool-icon {
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
   <!-- Graph Logic -->
-  <script>
-    // Basic D3 simulation
-    const svg = d3.select("#graph-canvas");
-    const width = window.innerWidth, height = window.innerHeight;
-
-    let nodes = [], links = [];
-    let selectedNode = null;
-    let drawNodeMode = false;
 
 
-    const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).distance(100))
-      .force("charge", d3.forceManyBody().strength(-200))
-      .force("center", d3.forceCenter(width/2, height/2));
+<script>
+// Setup
+const svg = d3.select("#graph-canvas");
+const width = window.innerWidth;
+const height = window.innerHeight;
+let nodes = [], links = [];
+let selectedNode = null;
+let drawNodeMode = false;
 
-    // Example: Save graph
-    function saveGraph() {
-      const data = { nodes, links };
-      console.log("Graph saved:", JSON.stringify(data));
-      alert("Graph saved to console!");
-    }
+// D3 simulation
+const simulation = d3.forceSimulation(nodes)
+  .force("link", d3.forceLink(links).distance(100))
+  .force("charge", d3.forceManyBody().strength(-200))
+  .force("center", d3.forceCenter(width / 2, height / 2));
 
-    // Example: Toggle grid
-    function toggleGrid() {
-      svg.classed("grid", !svg.classed("grid"));
-    alert("grid");
-    }
+// Save graph
+function saveGraph() {
+  const data = { nodes, links };
+  console.log("Graph saved:", JSON.stringify(data));
+  alert("Graph saved to console!");
+}
 
-    // Example: Arrange nodes
-    function arrangeNodes() {
-      alert("turn on gravity");
-      simulation.alpha(1).restart();
-    }
-    
-    // Example: node mode
-    document.getElementById("draw-node").addEventListener("click", () => {
+// Toggle grid
+function toggleGrid() {
+  svg.classed("grid", !svg.classed("grid"));
+  alert("Grid toggled");
+}
+
+// Arrange nodes
+function arrangeNodes() {
+  alert("Auto-arrange triggered");
+  simulation.alpha(1).restart();
+}
+
+// Toggle draw node mode
+document.querySelector("[data-mode='draw-node']").addEventListener("click", () => {
   drawNodeMode = !drawNodeMode;
   alert(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
 });
 
-    
-    // Example: edge mode
-    function drawedge() {
-      alert("edge mode");
-    }
-
-    // Update properties panel when node selected
-    function updatePropertiesPanel(node) {
-      document.getElementById("node-name").value = node.label || "";
-      document.getElementById("node-sticky").checked = node.fx !== undefined;
-      document.getElementById("node-x").value = node.x.toFixed(2);
-      document.getElementById("node-y").value = node.y.toFixed(2);
-    }
-
-    // Wire up UI buttons
-    document.getElementById("toggle-save").addEventListener("click", saveGraph);
-    document.getElementById("toggle-grid").addEventListener("click", toggleGrid);
-    document.getElementById("toggle-arrange").addEventListener("click", arrangeNodes);
-    document.getElementById("draw-node").addEventListener("click", drawnodes);
-    document.getElementById("draw-edge").addEventListener("click", drawedge);
-    document.getElementById("toggle-ui").addEventListener("click", () => {
-      document.querySelectorAll(".ui-panel").forEach(p => p.classList.toggle("hidden"));
-    });
-
-    // Timeline slider
-    document.getElementById("timeline-slider").addEventListener("input", e => {
-      console.log("Timeline index:", e.target.value);
-      // loadGraphState(e.target.value); // implement snapshot logic
-    });
-
+// Canvas click to add node
 document.getElementById("graph-canvas").addEventListener("click", (event) => {
   if (!drawNodeMode) return;
 
-  const svg = document.getElementById("graph-canvas");
-  const pt = svg.createSVGPoint();
+  const pt = svg.node().createSVGPoint();
   pt.x = event.clientX;
   pt.y = event.clientY;
-  const cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse());
+  const cursorpt = pt.matrixTransform(svg.node().getScreenCTM().inverse());
 
   const newNode = {
     id: nodes.length + 1,
@@ -353,25 +325,53 @@ document.getElementById("graph-canvas").addEventListener("click", (event) => {
 
   nodes.push(newNode);
   simulation.nodes(nodes).alpha(1).restart();
+  render();
 });
 
-
-
-    // Example node creation
-    nodes.push({ id: 1, x: width/2, y: height/2, label:"Start" });
-    simulation.nodes(nodes).on("tick", () => {
-      svg.selectAll("circle")
-        .data(nodes)
-        .join("circle")
-        .attr("r", 20)
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y)
-        .on("click", d => {
-          selectedNode = d;
-          updatePropertiesPanel(d);
-        });
+// Render function
+function render() {
+  svg.selectAll("circle")
+    .data(nodes)
+    .join("circle")
+    .attr("r", 20)
+    .attr("cx", d => d.x)
+    .attr("cy", d => d.y)
+    .attr("fill", "#88f")
+    .on("click", (event, d) => {
+      selectedNode = d;
+      updatePropertiesPanel(d);
+      event.stopPropagation(); // prevent canvas click
     });
-  </script>
+
+  svg.selectAll("line")
+    .data(links)
+    .join("line")
+    .attr("x1", d => d.source.x)
+    .attr("y1", d => d.source.y)
+    .attr("x2", d => d.target.x)
+    .attr("y2", d => d.target.y)
+    .attr("stroke", "#999")
+    .attr("stroke-width", 2);
+}
+
+// Update properties panel
+function updatePropertiesPanel(node) {
+  document.getElementById("prop-name").value = node.label || "";
+  document.getElementById("prop-sticky").checked = node.fx !== undefined;
+  document.getElementById("prop-x").value = node.x.toFixed(2);
+  document.getElementById("prop-y").value = node.y.toFixed(2);
+}
+
+// Wire up buttons
+document.getElementById("toggle-save").addEventListener("click", saveGraph);
+document.getElementById("toggle-grid").addEventListener("click", toggleGrid);
+document.getElementById("toggle-autoarrange").addEventListener("click", arrangeNodes);
+
+// Initial node
+nodes.push({ id: 1, x: width / 2, y: height / 2, label: "Start" });
+simulation.nodes(nodes).on("tick", render);
+</script>
+
 </body>
 </html>
 
