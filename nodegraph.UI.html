@@ -446,10 +446,22 @@ svg.on("click", (event) => {
   };
 
   nodes.push(newNode);
-  simulation.nodes(nodes).alpha(1).restart();
+
+  // If a node is currently selected, connect it to the new one
+  if (selectedNode) {
+    links.push({ source: selectedNode, target: newNode });
+    console.log(`Auto‑connected ${selectedNode.label} → ${newNode.label}`);
+  }
+
+  simulation.nodes(nodes);
+  simulation.force("link").links(links);
+  simulation.alpha(1).restart();
+
   render();
   recenterAndZoom();
 });
+
+  
 
 // === Rendering ===
 function render() {
