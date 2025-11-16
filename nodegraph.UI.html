@@ -287,15 +287,29 @@ button .tool-icon {
 
   
 <script>
+
 // Setup
 const svg = d3.select("#graph-canvas");
+
+// Initial mode setup
+let drawNodeMode = true;
+let drawEdgeMode = false;
+let selectedNode = null;
+let edgeSourceNode = null;
+
+// Activate button style at startup
+const drawNodeBtn = document.querySelector("[data-mode='draw-node']");
+const drawEdgeBtn = document.querySelector("[data-mode='draw-edge']");
+const selectBtn   = document.querySelector("[data-mode='select']");
+
+drawNodeBtn.classList.add("active");
+drawEdgeBtn.classList.remove("active");
+selectBtn.classList.remove("active");
+
 const width = window.innerWidth;
 const height = window.innerHeight;
 let nodes = [], links = [];
-let selectedNode = null;
-let drawNodeMode = false;
-let drawEdgeMode = false;
-let edgeSourceNode = null;
+
 
 
 // Add a group for zoom/pan
@@ -316,15 +330,33 @@ const zoom = d3.zoom()
 svg.call(zoom);
 
 function recenterAndZoom() {
-  const scale = 0.8; // zoom out a little
-  const tx = width / 2;
-  const ty = height / 2;
+  if (nodes.length === 0) return;
+
+  // Compute bounding box of all nodes
+  const minX = d3.min(nodes, d => d.x);
+  const maxX = d3.max(nodes, d => d.x);
+  const minY = d3.min(nodes, d => d.y);
+  const maxY = d3.max(nodes, d => d.y);
+
+  const graphWidth  = maxX - minX;
+  const graphHeight = maxY - minY;
+
+  // Compute scale so graph fits viewport with margin
+  const scale = Math.min(
+    width / (graphWidth * 1.4),
+    height / (graphHeight * 1.4)
+  );
+
+  // Compute translation to centre graph
+  const tx = width / 2 - (minX + graphWidth / 2) * scale;
+  const ty = height / 2 - (minY + graphHeight / 2) * scale;
 
   svg.transition().duration(500).call(
     zoom.transform,
     d3.zoomIdentity.translate(tx, ty).scale(scale)
   );
 }
+
 
 
 // Save graph
