@@ -446,8 +446,8 @@ document.getElementById("toggle-save").addEventListener("click", saveGraph);
 document.getElementById("toggle-grid").addEventListener("click", toggleGrid);
 document.getElementById("toggle-autoarrange").addEventListener("click", arrangeNodes);
 
-// Initial node
-nodes.push({ id: 1, x: width / 2, y: height / 2, label: "Start" });
+// Initial node uncomment for a starting node
+//nodes.push({ id: 1, x: width / 2, y: height / 2, label: "Start" });
 simulation.nodes(nodes).on("tick", render);
 </script>
 
