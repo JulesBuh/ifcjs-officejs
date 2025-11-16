@@ -276,187 +276,182 @@ button .tool-icon {
 
   <!-- Load D3 -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
-
-  <!-- Graph Logic -->
-
-
-
-
-
-
-
-  
 <script>
-
-// Setup
+// === Setup ===
 const svg = d3.select("#graph-canvas");
+const svgNode = svg.node();
+const width = window.innerWidth;
+const height = window.innerHeight;
 
-// Initial mode setup
-let drawNodeMode = true;
+let nodes = [];
+let links = [];
+
+let drawNodeMode = true;      // start in Add Node mode
 let drawEdgeMode = false;
 let selectedNode = null;
 let edgeSourceNode = null;
 
-// Activate button style at startup
+// Buttons
+const selectBtn   = document.querySelector("[data-mode='select']");
 const drawNodeBtn = document.querySelector("[data-mode='draw-node']");
 const drawEdgeBtn = document.querySelector("[data-mode='draw-edge']");
-const selectBtn   = document.querySelector("[data-mode='select']");
 
+// Activate initial button style
 drawNodeBtn.classList.add("active");
 drawEdgeBtn.classList.remove("active");
 selectBtn.classList.remove("active");
 
-const width = window.innerWidth;
-const height = window.innerHeight;
-let nodes = [], links = [];
-
-
-
-// Add a group for zoom/pan
+// Group for all rendered graph content (so zoom/pan transforms this)
 const svgGroup = svg.append("g");
 
-// D3 simulation
+// === Simulation ===
 const simulation = d3.forceSimulation(nodes)
   .force("link", d3.forceLink(links).distance(100))
   .force("charge", d3.forceManyBody().strength(-200))
   .force("center", d3.forceCenter(width / 2, height / 2));
 
-// Zoom behavior
+// === Zoom / Pan ===
 const zoom = d3.zoom()
   .scaleExtent([0.1, 4])
   .on("zoom", (event) => {
     svgGroup.attr("transform", event.transform);
   });
+
 svg.call(zoom);
 
+// Helper: get SVG-local coordinates, accounting for zoom/pan
+function getSvgPoint(event) {
+  const pt = svgNode.createSVGPoint();
+  // Use offsetX/Y for element-relative coords (mobile-friendly), then map through current transform
+  pt.x = event.offsetX ?? event.clientX;
+  pt.y = event.offsetY ?? event.clientY;
+  const ctm = svgNode.getScreenCTM();
+  // When zoom has transformed <g>, we must invert the current transform of the group:
+  const transform = svgGroup.node().transform.baseVal.consolidate();
+  if (transform) {
+    const matrix = transform.matrix;
+    // Invert the group transform manually
+    const inv = matrix.inverse();
+    return {
+      x: (pt.x - inv.e) / inv.a,
+      y: (pt.y - inv.f) / inv.d
+    };
+  }
+  // Fallback using screen CTM
+  const local = pt.matrixTransform(ctm.inverse());
+  return { x: local.x, y: local.y };
+}
+
+// Helper: recenter and auto-zoom to fit nodes with margin
 function recenterAndZoom() {
   if (nodes.length === 0) return;
 
-  // Compute bounding box of all nodes
   const minX = d3.min(nodes, d => d.x);
   const maxX = d3.max(nodes, d => d.x);
   const minY = d3.min(nodes, d => d.y);
   const maxY = d3.max(nodes, d => d.y);
 
-  const graphWidth  = maxX - minX;
-  const graphHeight = maxY - minY;
+  let graphWidth = Math.max(1, maxX - minX);
+  let graphHeight = Math.max(1, maxY - minY);
 
-  // Compute scale so graph fits viewport with margin
+  const marginFactor = 1.4;
   const scale = Math.min(
-    width / (graphWidth * 1.4),
-    height / (graphHeight * 1.4)
+    width / (graphWidth * marginFactor),
+    height / (graphHeight * marginFactor)
   );
 
-  // Compute translation to centre graph
-  const tx = width / 2 - (minX + graphWidth / 2) * scale;
-  const ty = height / 2 - (minY + graphHeight / 2) * scale;
+  const centerX = minX + graphWidth / 2;
+  const centerY = minY + graphHeight / 2;
 
-  svg.transition().duration(500).call(
-    zoom.transform,
-    d3.zoomIdentity.translate(tx, ty).scale(scale)
-  );
+  const tx = width / 2 - centerX * scale;
+  const ty = height / 2 - centerY * scale;
+
+  svg.transition().duration(400)
+    .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 }
 
-
-
-// Save graph
+// === Core actions ===
 function saveGraph() {
   const data = { nodes, links };
   console.log("Graph saved:", JSON.stringify(data));
-  alert("Graph saved to console!");
 }
 
-// Toggle grid
 function toggleGrid() {
-  svg.classed("grid", !svg.classed("grid"));
-  alert("Grid toggled");
+  const current = svg.classed("grid");
+  svg.classed("grid", !current);
+  console.log("Grid toggled:", !current);
 }
 
-// Arrange nodes
 function arrangeNodes() {
-  alert("Auto-arrange triggered");
+  console.log("Auto-arrange triggered");
   simulation.alpha(1).restart();
 }
 
-// Draw Node Mode
-const drawNodeBtn = document.querySelector("[data-mode='draw-node']");
-drawNodeBtn.addEventListener("click", () => {
-  drawNodeMode = !drawNodeMode;
-  drawEdgeMode = false; // disable edge mode if active
-
-  // Clear selections
-  selectedNode = null;
-  edgeSourceNode = null;
-
-  // Update button styles
-  drawNodeBtn.classList.toggle("active", drawNodeMode);
-  drawEdgeBtn.classList.remove("active");
-selectBtn.classList.remove("active");
-
-  console.log(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
-  render(); // refresh colors
-});
-
-// Select Mode
-const selectBtn = document.querySelector("[data-mode='select']");
+// === Mode toggles ===
 selectBtn.addEventListener("click", () => {
-  // Turn off other modes
   drawNodeMode = false;
   drawEdgeMode = false;
 
-  // Clear selections
   selectedNode = null;
   edgeSourceNode = null;
 
-  // Update button styles
   selectBtn.classList.add("active");
   drawNodeBtn.classList.remove("active");
   drawEdgeBtn.classList.remove("active");
 
   console.log("Select mode ON");
-  render(); // refresh colors so no nodes remain highlighted
+  render();
 });
 
-// Draw Edge Mode
-const drawEdgeBtn = document.querySelector("[data-mode='draw-edge']");
-drawEdgeBtn.addEventListener("click", () => {
-  drawEdgeMode = !drawEdgeMode;
-  drawNodeMode = false; // disable node mode if active
-selectBtn.classList.remove("active");
+drawNodeBtn.addEventListener("click", () => {
+  drawNodeMode = !drawNodeMode;
+  drawEdgeMode = false;
 
-  // Clear selections
   selectedNode = null;
   edgeSourceNode = null;
 
-  // Update button styles
-  drawEdgeBtn.classList.toggle("active", drawEdgeMode);
-  drawNodeBtn.classList.remove("active");
+  drawNodeBtn.classList.toggle("active", drawNodeMode);
+  drawEdgeBtn.classList.remove("active");
+  selectBtn.classList.remove("active");
 
-  console.log(drawEdgeMode ? "Edge drawing mode ON" : "Edge drawing mode OFF");
-  render(); // refresh colors
+  console.log(drawNodeMode ? "Node drawing mode ON" : "Node drawing mode OFF");
+  render();
 });
 
+drawEdgeBtn.addEventListener("click", () => {
+  drawEdgeMode = !drawEdgeMode;
+  drawNodeMode = false;
 
+  selectedNode = null;
+  edgeSourceNode = null;
 
-// Canvas click to add node
+  drawEdgeBtn.classList.toggle("active", drawEdgeMode);
+  drawNodeBtn.classList.remove("active");
+  selectBtn.classList.remove("active");
+
+  console.log(drawEdgeMode ? "Edge drawing mode ON" : "Edge drawing mode OFF");
+  render();
+});
+
+// === Canvas interactions ===
 svg.on("click", (event) => {
   if (!drawNodeMode) return;
 
+  const p = getSvgPoint(event);
   const newNode = {
     id: nodes.length + 1,
-    x: event.offsetX,
-    y: event.offsetY,
+    x: p.x,
+    y: p.y,
     label: `Node ${nodes.length + 1}`
   };
 
   nodes.push(newNode);
-simulation.nodes(nodes).alpha(1).restart();
-render();
-recenterAndZoom();
-
+  simulation.nodes(nodes).alpha(1).restart();
+  render();
+  recenterAndZoom();
 });
 
-
+// === Rendering ===
 function render() {
   // Links
   svgGroup.selectAll("line")
@@ -477,16 +472,12 @@ function render() {
     .attr("cx", d => d.x)
     .attr("cy", d => d.y)
     .attr("fill", d => {
-      if (drawEdgeMode && edgeSourceNode && d.id === edgeSourceNode.id) {
-        return "orange"; // highlight source node in edge mode
-      }
-      if (selectedNode && d.id === selectedNode.id) {
-        return "orange"; // highlight selected node
-      }
-      return "#88f"; // default blue
+      if (drawEdgeMode && edgeSourceNode && d.id === edgeSourceNode.id) return "orange";
+      if (selectedNode && d.id === selectedNode.id) return "orange";
+      return "#88f";
     })
     .on("click", (event, d) => {
-      event.stopPropagation(); // prevent canvas click
+      event.stopPropagation();
 
       if (drawEdgeMode) {
         if (!edgeSourceNode) {
@@ -498,35 +489,40 @@ function render() {
           simulation.alpha(1).restart();
           console.log(`Edge created between ${edgeSourceNode.label} and ${d.label}`);
           edgeSourceNode = null;
+          recenterAndZoom();
         }
       } else {
         selectedNode = d;
         updatePropertiesPanel(d);
         console.log(`Selected node ${d.label}`);
       }
-      render(); // re-render to update colors
-      recenterAndZoom();
+      render();
     });
 }
 
-
-// Update properties panel
+// === Properties panel ===
 function updatePropertiesPanel(node) {
-  document.getElementById("prop-name").value = node.label || "";
-  document.getElementById("prop-sticky").checked = node.fx !== undefined;
-  document.getElementById("prop-x").value = node.x.toFixed(2);
-  document.getElementById("prop-y").value = node.y.toFixed(2);
+  const nameEl = document.getElementById("prop-name");
+  const stickyEl = document.getElementById("prop-sticky");
+  const xEl = document.getElementById("prop-x");
+  const yEl = document.getElementById("prop-y");
+
+  if (nameEl)  nameEl.value = node.label || "";
+  if (stickyEl) stickyEl.checked = node.fx !== undefined;
+  if (xEl)     xEl.value = node.x.toFixed(2);
+  if (yEl)     yEl.value = node.y.toFixed(2);
 }
 
-// Wire up buttons
+// === Top toolbar ===
 document.getElementById("toggle-save").addEventListener("click", saveGraph);
 document.getElementById("toggle-grid").addEventListener("click", toggleGrid);
 document.getElementById("toggle-autoarrange").addEventListener("click", arrangeNodes);
 
-// Initial node uncomment for a starting node
-//nodes.push({ id: 1, x: width / 2, y: height / 2, label: "Start" });
+// === Start simulation ===
 simulation.nodes(nodes).on("tick", render);
 </script>
+
+  
 
 
 </body>
