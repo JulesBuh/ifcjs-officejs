@@ -364,15 +364,10 @@ drawEdgeBtn.addEventListener("click", () => {
 svg.on("click", (event) => {
   if (!drawNodeMode) return;
 
-  const pt = svg.node().createSVGPoint();
-  pt.x = event.clientX;
-  pt.y = event.clientY;
-  const cursorpt = pt.matrixTransform(svg.node().getScreenCTM().inverse());
-
   const newNode = {
     id: nodes.length + 1,
-    x: cursorpt.x,
-    y: cursorpt.y,
+    x: event.offsetX,
+    y: event.offsetY,
     label: `Node ${nodes.length + 1}`
   };
 
@@ -380,6 +375,7 @@ svg.on("click", (event) => {
   simulation.nodes(nodes).alpha(1).restart();
   render();
 });
+
 
 function render() {
   // Links
